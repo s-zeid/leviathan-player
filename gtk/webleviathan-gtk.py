@@ -67,15 +67,6 @@ def get_url():
  c = gconf.Client()
  return c.get_string(APP_URL_KEY)
 
-def gframe(label=None, parent=None, spacing=0, **kwargs):
- f = gtk.Frame(label)
- vbox0 = gadd(gtk.VBox(), f)
- hbox = gadd(gtk.HBox(spacing=spacing), vbox0, padding=spacing)
- vbox1 = gadd(gtk.VBox(spacing=spacing), hbox, padding=spacing)
- if parent:
-  gadd(f, parent, **kwargs)
- return f, vbox1
-
 def run_set_url_dialog():
  SP = 5
  url = get_url() or ""
