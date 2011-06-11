@@ -1,0 +1,10 @@
+<uwsgi>
+ <python-path>/webleviathan/directory</python-path>
+ <app mountpoint="/webleviathan"></app>
+ <module>webleviathan</module>
+ <processes>4</processes>
+ <master/>
+ <harakiri>90</harakiri>
+ <limit-as>32</limit-as>
+ <memory-report/>
+</uwsgi>

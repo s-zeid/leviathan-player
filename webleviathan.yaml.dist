@@ -1,0 +1,17 @@
+# Path to the leviathan.yaml config file.
+leviathan.yaml: leviathan/leviathan.yaml
+
+# Defaults--set each option to True if you want it turned on by default
+defaults:
+ repeat:     False
+ scrobbling: True
+ shuffle:    False
+
+# Enter your Last.fm credentials here if you want to scrobble
+last.fm:
+ username:   
+ password:   
+
+# The name of the theme you want to use
+# Taken from the filename under themes/ without the .yaml extension
+theme:       radiance

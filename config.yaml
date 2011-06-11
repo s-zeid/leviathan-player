@@ -1,0 +1,9 @@
+# Display name of your app
+name: Leviathan Music Player
+# Base directory of your app without a trailing slash
+root: /home/scottywz/Projects/Software/WebLeviathan
+# Development settings (development mode = run_if_main(__name__, True))
+development:
+    host:  127.0.0.1
+    port:  8080
+    debug: True # This is always False in production modes

@@ -1,0 +1,361 @@
+/*
+ * Leviathan Music Player
+ * A Web-based music player based on the Leviathan music library manager.
+ * 
+ * Copyright (C) 2010-2011 Scott Zeid
+ * http://me.srwz.us/leviathan/web
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
+ * Except as contained in this notice, the name(s) of the above copyright holders
+ * shall not be used in advertising or otherwise to promote the sale, use or
+ * other dealings in this Software without prior written authorization.
+ *
+ */
+
+body {
+ margin: 0px;
+ background: {{!theme["toolbar_bg"]}};
+ font-family: "Ubuntu", "DejaVu Sans", "Bitstream Vera Sans", "Verdana",
+              sans-serif;
+ font-size: 1em;
+ color: {{!theme["toolbar_text"]}};
+ overflow: hidden;
+}
+a, #library li .table .row span {
+ color: {{!theme["page_link"][0]}};
+ text-decoration: none;
+ cursor: pointer;
+}
+a:hover, a:active {
+ color: {{!theme["page_link"][1]}};
+}
+h1, .h1, #title {
+ font-size: 2em;
+ font-weight: normal;
+}
+h2, .h2 {
+ font-size: 1.5em;
+ font-weight: normal;
+}
+img {
+ border-style: none;
+}
+.hide {
+ display: none;
+}
+.monospace {
+ font-family: "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Courier New",
+              "Courier", monospace;
+}
+.small {
+ font-size: .6em;
+}
+
+#large_art_lightbox {
+ position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+ display: none;
+ background: url("{{root_url}}/images/lightbox-background.png");
+ overflow: hidden;
+ cursor: pointer;
+}
+ #large_art_lightbox .image {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  width: 100%; height: 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+ }
+
+#wrapper {
+ position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+}
+ #header {
+  position: absolute; top: 0; right: 0; bottom: auto; left: 0;
+  height: 119px;
+  margin-bottom: 1em;
+  border-bottom: 1px solid {{!theme["toolbar_border"]}};
+  background-color: {{!theme["toolbar_bg"]}};
+  color: {{!theme["toolbar_text"]}};
+ }
+  #title {
+   margin: 0;
+   padding: 0 50px;
+   line-height: 120px;
+  }
+  #toolbar {
+   position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  }
+   #artwork {
+    position: absolute; top: 12px; right: auto; bottom: 12px; left: 12px;
+    display: table;
+    width: 94px;
+    height: 94px;
+   }
+    #artwork div {
+     display: table-row;
+     width: 100%;
+     height: 100%;
+     vertical-align: middle;
+    }
+     #artwork div div {
+      display: table-cell;
+      text-align: center;
+     }
+      #artwork img {
+       min-width: 0;
+       min-height: 0;
+       max-width: 92px;
+       max-height: 92px;
+       width: auto;
+       height: auto;
+       border: 2px solid {{!theme["toolbar_art_border"]}};
+       background-color: {{!theme["toolbar_art_bg"]}};
+       cursor: pointer;
+      }
+    #artwork .artwork {
+     display: none;
+    }
+   #song_info {
+    position: absolute; top: 12px; right: 12px; bottom: 12px; left: 120px;
+   }
+    #song_info .title, #song_info .welcome_title {
+     position: absolute; top: 0; right: 0; bottom: 40px; left: 0;
+     height: 40px;
+     line-height: 40px;
+     font-size: 2em;
+     overflow: hidden;
+    }
+    #song_info .title {
+     display: none;
+    }
+    #song_info .extra {
+     position: absolute; top: 40px; right: 0; bottom: 28px; left: 0;
+     height: 28px;
+     line-height: 28px;
+     overflow: hidden;
+    }
+     #song_info .album, #song_info .artist {
+      display: none;
+     }
+     #song_info .not_playing, #song_info .name {
+      font-style: italic;
+     }
+    #control_bar {
+     position: absolute; top: 72px; right: 0; bottom: 0; left: 0;
+     height: 24px;
+    }
+     #control_bar .button {
+      position: absolute; top: 4px; bottom: 4px;
+      width: 16px; height: 16px;
+     }
+     #previous {
+      right: auto; left: 0;
+     }
+     #play_pause {
+      right: auto; left: 32px;
+     }
+     #next {
+      right: auto; left: 64px;
+     }
+      #control_bar .previous, #control_bar .play, #control_bar .pause,
+      #control_bar .next, #control_bar .repeat, #control_bar .shuffle,
+      #control_bar .scrobbling {
+       display: none;
+      }
+      #control_bar .previous, #control_bar .play, #control_bar .pause,
+      #control_bar .next, #control_bar .repeat, #control_bar .no_repeat,
+      #control_bar .shuffle, #control_bar .no_shuffle, #control_bar .scrobbling,
+      #control_bar .no_scrobbling {
+       cursor: pointer;
+      }
+      #player_container {
+       position: absolute; top: 0; right: 96px; bottom: 0; left: 74px;
+       height: 24px;
+       clip: rect(auto, auto, auto, 22px);
+      }
+       #player {
+        width: 100%;
+        height: 100%;
+       }
+     #repeat {
+      right: 64px; left: auto;
+     }
+     #shuffle {
+      right: 32px; left: auto;
+     }
+     #scrobbling {
+      right: 0; left: auto;
+     }
+ #body {
+  position: absolute; top: 120px; right: 0; bottom: 0; left: 0;
+  width: 100%;
+  clear: both;
+  background: {{!theme["page_bg"]}};
+  color: {{!theme["page_text"]}};
+ }
+ #action_index #body {
+  background: {{!theme["list_area_bg"]}};
+  color: {{!theme["list_area_text"]}};
+ }
+ #content {
+  margin: 50px;
+ }
+ #library {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+ }
+ #library > div {
+  position: absolute; top: 0; right: auto; bottom: 0; left: 0;
+  width: 50%;
+ }
+ #library > div + div {
+  right: 0; left: auto;
+ }
+ #library > div > div {
+  position: absolute; top: 12px; right: 6px; bottom: 12px; left: 12px;
+  border: 1px solid {{!theme["list_border"]}};
+ }
+ #library > div > div > .header {
+  position: absolute; top: 0; right: 0; bottom: auto; left: 0;
+  height: 24px;
+  line-height: 24px;
+  padding: 0 .5em;
+  background-color: {{!theme["list_header_bg"]}};
+  color: {{!theme["list_header_text"]}};
+  border-bottom: 1px solid {{!theme["list_border"]}};
+  font-size: .8em;
+ }
+ #queue > div > .header .clear {
+  float: right;
+  width: auto;
+  color: {{!theme["clear_link"][0]}};
+  cursor: pointer;
+ }
+ #queue > div > .header .clear:hover,
+ #queue > div > .header .clear:active {
+  color: {{!theme["clear_link"][1]}};
+ }
+ #library > div > div > .list {
+  position: absolute; top: 24px; right: 0; bottom: 0; left: 0;
+  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  background-color: {{!theme["list_bg"]}};
+  border-top: 1px solid {{!theme["list_border"]}};
+  font-size: .8em;
+ }
+ #library > div + div > div {
+  right: 10px; left: 6px;
+ }
+ 
+ #library ul {
+  list-style-type: none;
+  margin: 0;
+  padding-left: 0;
+  background-color: {{!theme["list_item_bg"][0]}};
+ }
+ #library ul ul {
+  background-color: {{!theme["list_item_bg"][1]}};
+ }
+ #library ul ul ul {
+  background-color: {{!theme["list_item_bg"][2]}};
+ }
+ #library ul ul ul ul {
+  background-color: {{!theme["list_item_bg"][3]}};
+ }
+ #library li {
+  min-height: 24px;
+  border-top: 1px solid {{!theme["list_item_border"][0]}};
+ }
+ #library .list > ul > li:first-child {
+  border-top-style: none;
+ }
+ #library ul ul li, #library li.expanded + li {
+  border-top-color: {{!theme["list_item_border"][1]}};
+ }
+ #library ul ul ul li, #library li.expanded li.expanded + li {
+  border-top-color: {{!theme["list_item_border"][2]}};
+ }
+ #library ul ul ul ul li, #library li.expanded li.expanded li.expanded + li {
+  border-top-color: {{!theme["list_item_border"][3]}};
+ }
+ #library li.selected {
+  background-color: {{!theme["list_item_selected"][0]}};
+  border-top-color: {{!theme["list_item_selected"][1]}};
+  font-weight: bold;
+ }
+ #library li.selected + li {
+  border-top-color: {{!theme["list_item_selected"][1]}};
+ }
+ #library li .table {
+  display: table;
+  width: 100%; min-height: 24px;
+ }
+ #library li .table:active, #library li .table:hover {
+  background-color: {{!theme["list_item_hover"][0]}};
+ }
+ #library ul ul li .table:active, #library ul ul li .table:hover {
+  background-color: {{!theme["list_item_hover"][1]}};
+ }
+ #library li .row {
+  display: table-row;
+  vertical-align: middle;
+ }
+ #library li .row .spacer {
+  display: table-cell;
+  width: 4px; height: 24px;
+  padding-left: 0;
+ }
+ #library ul ul li .row .spacer {
+  padding-left: .5em;
+ }
+ #library ul ul ul li .row .spacer {
+  padding-left: 1em;
+ }
+ #library ul ul ul ul li .row .spacer {
+  padding-left: 1.5em;
+ }
+ #library li .row .icon {
+  display: table-cell;
+  width: 16px; height: 16px;
+  background-repeat: no-repeat;
+  background-position: center center;
+ }
+ #library li[data-category="album"] .row .icon {
+  display: none;
+ }
+ #library li:not([data-category="album"]) .row .icon + .name {
+  display: table-cell;
+  padding-left: .5em;
+  padding-right: .5em;
+ }
+ #library li .row .name {
+  display: table-cell;
+  vertical-align: middle;
+  padding-top: 4px;
+  padding-bottom: 4px;
+ }
+ #library li .row .add, #library li .row .remove {
+  display: table-cell;
+  width: 16px; height: 16px;
+  padding-right: 8px;
+  background: url("{{root_url}}/images/add.png") no-repeat center center;
+ }
+ #library li .row .remove {
+  background-image: url("{{root_url}}/images/remove.png");
+ }

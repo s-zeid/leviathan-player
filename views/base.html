@@ -1,0 +1,77 @@
+%from jugofpunch import strip_html
+<!--[if lt IE 7]><span class="hide" title="Put IE lt 7 in quirks mode so IE9.js will work right"></span><![endif]-->
+<!DOCTYPE html>
+
+<!--
+
+ Leviathan Music Player
+ A Web-based music player based on the Leviathan music library manager.
+ 
+ Copyright (C) 2010-2011 Scott Zeid
+ http://me.srwz.us/leviathan/web
+ 
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ 
+ Except as contained in this notice, the name(s) of the above copyright holders
+ shall not be used in advertising or otherwise to promote the sale, use or
+ other dealings in this Software without prior written authorization.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <meta charset="utf-8" />
+  <title>{{!page_title}}</title>
+  <link rel="shortcut icon" type="image/x-icon" href="{{root_path}}/favicon.ico" />
+  <!--[if lt IE 9]>
+   <script type="text/javascript">var IE7_PNG_SUFFIX = ".png";</script>
+   <script defer="defer" type="text/javascript" src="{{root_path}}/static/IE9.js"></script>
+  <![endif]-->
+  <script type="text/javascript" src="{{root_path}}/static/jquery-1.5.min.js"></script>
+  <script type="text/javascript" src="{{root_path}}/static/jwplayer.js"></script>
+  <script type="text/javascript" src="{{root_path}}/webleviathan.js"></script>
+  <link rel="stylesheet" type="text/css" href="{{url_scheme}}://fonts.googleapis.com/css?family=Ubuntu:regular,italic,bold,bolditalic" />
+  <link rel="stylesheet" type="text/css" href="{{root_path}}/style.css" />
+%if mobile:
+  <meta name="viewport" content="width=1024" />
+%end
+ </head>
+ <body id="action_{{handler}}"\\
+%if mobile or device:
+ class="{{'mobile ' if mobile else ''}}{{!'device_'+device if device else ''}}"\\
+%end
+>
+  <div id="hidden" class="hide"></div>
+  <div id="wrapper">
+   <div id="header">
+%if handler == "index":
+%include toolbar.html **tplvars
+%else:
+    <h1 id="title">{{!site_name}}</h1>
+%end
+   </div>
+   <div id="body">
+%include
+   </div>
+  </div>
+%if handler == "index":
+  <div id="large_art_lightbox_container"></div>
+%end
+ </body>
+</html>

@@ -1,0 +1,59 @@
+# Leviathan Music Player
+# A Web-based music player based on the Leviathan music library manager.
+# 
+# Copyright (C) 2010-2011 Scott Zeid
+# http://me.srwz.us/leviathan/web
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+# 
+# Except as contained in this notice, the name(s) of the above copyright holders
+# shall not be used in advertising or otherwise to promote the sale, use or
+# other dealings in this Software without prior written authorization.
+
+page_bg:            "#F2F1F0"
+page_text:          "#4C4C4C"
+                    # page_link:  normal, hover/active
+page_link:          ["#A00", "#800"]
+toolbar_bg:         "#555"
+toolbar_text:       "#FFF"
+toolbar_art_bg:     "#333"
+toolbar_art_border: "#444"
+                    # player_*:  CSS hex format with no # sign and 6 digits
+                    # See JW Player documentation for details
+player_back:        "333333"
+player_front:       "FFFFFF"
+player_light:       "FFFFFF"
+player_screen:      "000000"
+list_area_bg:       "#F2F1F0"
+list_area_text:     "#4C4C4C"
+list_bg:            "#CCC"
+list_border:        "#555"
+list_header:        "#FFF"
+                    # list_item_bg:  one per level; top level first
+list_item_bg:       ["#EEEEEE", "#E7E7E7", "#DDDDDD", "#D0D0D0"]
+                    # list_item_border:  one per level; top level first
+list_item_border:   ["#E7E7E7", "#DDDDDD", "#D0D0D0", "#C6C6C6"]
+                    # list_item_hover:  top level, deeper levels
+list_item_hover:    ["#F7F7F7", "#F0F0F0"]
+                    # list_item_selected:  background, border
+list_item_selected: ["#E7E7E7", "#DDDDDD"]
+                    # list_link:  normal, hover/active
+list_link:          ["#A00", "#800"]
+                    # clear_link:  normal, hover/active
+clear_link:         ["#AAA", "#FFF"]

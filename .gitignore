@@ -1,0 +1,8 @@
+*.pyc
+*.pyo
+artwork-cache/generic/*
+artwork-cache/library/*
+leviathan/.git*
+leviathan/leviathan.yaml
+uwsgi.xml
+webleviathan.yaml

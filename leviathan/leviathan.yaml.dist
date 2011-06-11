@@ -1,0 +1,36 @@
+###########################
+# Leviathan configuration #
+###########################
+
+# Library settings
+library:           /path/to/music/library
+playlists:         /path/to/playlists
+playlists_mp3:     /path/to/mp3-only-playlists
+playlist_db:       /path/to/database
+albumart_filename: albumart.jpg
+
+# List of playlists to ignore
+# Replace [] with a list of playlists to ignore, like this:
+#  - Playlist 1
+#  - Playlist 2
+#  ...
+db_ignore_playlists:
+ []  
+
+# MP3 encoding settings
+ffmpeg:            ffmpeg  # Path to FFmpeg
+lame:              lame    # Path to LAME
+constant_bitrate:  256k    # ignored if you're using VBR
+vbr_quality:       0       # Set to Null if you're using constant bitrate
+
+# Possible values for vbr_quality:
+#  0: 220-260 kbps (highest quality; largest file size)
+#  1: 190-250 kbps
+#  2: 170-210 kbps
+#  3: 150-195 kbps
+#  4: 140-185 kbps
+#  5: 120-150 kbps
+#  6: 100-130 kbps
+#  7: 80-120 kbps
+#  8: 70-105 kbps
+#  9: 45-85 kbps (lowest quality; smallest file size)
