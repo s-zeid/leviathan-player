@@ -62,9 +62,6 @@ Leviathan Music Player uses two configuration files:
       in the themes directory.  Enter the name of the theme you want to use
       without the .yaml extension.
 
-config.yaml is used internally and you do not need to edit it.  It will
-probably be removed at a later time.
-
 Artwork Cache
 =============
 Cover art is cached under the artwork-cache/library/ directory.  All sizes
