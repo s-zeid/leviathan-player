@@ -1,0 +1,18 @@
+
+[Desktop Entry]
+Name=Leviathan Music Player
+GenericName=Music Player
+Type=Application
+Comment=Listen to your music
+Categoreies=GNOME;GTK;AudioVideo;Audio;Music;Player;
+Exec=webleviathan-gtk
+Icon=webleviathan-gtk
+StartupNotify=false
+Terminal=false
+
+X-Ayatana-Desktop-Shortcuts=SetURL
+
+[SetURL Shortcut Group]
+Name=Set Leviathan URL
+Exec=webleviathan-gtk --set-url
+TargetEnvironment=Unity

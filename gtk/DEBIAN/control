@@ -1,0 +1,8 @@
+Package: webleviathan-gtk
+Version: 1.0
+Architecture: all
+Maintainer: Scott Zeid <s@srwz.us>
+Description: Opens the Leviathan Music Player in a standalone window.
+Homepage: http://me.srwz.us/leviathan/player
+Section: sound
+Depends: python (<= 3.0), python-gconf, python-gobject, python-gtk2, python-webkit

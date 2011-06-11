@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Path to move old .deb files to; leave blank to leave them alone
+# Set to /dev/null to delete old .deb files
+OLD_DEBS=/dev/null
