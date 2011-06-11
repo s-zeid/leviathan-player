@@ -43,7 +43,10 @@ from bottle import *
 import yaml
 
 class config:
- class development: pass
+ class development:
+  host = "127.0.0.1"
+  port = 8080
+  debug = True
  class template:
   defaults = dict()
   engine = SimpleTemplate

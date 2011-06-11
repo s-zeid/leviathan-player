@@ -56,6 +56,7 @@ import pylast
 
 config(root=__file__)
 
+config.name = "Leviathan Music Player"
 config.template.defaults = dict(
  settings=lambda: settings(),
  theme=lambda: theme(),
