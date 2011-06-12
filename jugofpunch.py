@@ -43,6 +43,19 @@ from bottle import *
 import yaml
 
 class config:
+ """Stores configuration values for the current application.
+
+Default values:
+ development  - settings for development mode
+ development.host = "127.0.0.1"  - default host name to bind to
+ development.port = 8080  - default port number to bind to
+ development.debug = True  - whether to use debug mode
+ template  - template settings
+ template.defaults = {}  - default template variables
+ template.engine = SimpleTemplate  - default Bottle template engine to use
+ template.title_format = "%(page)s - %(site)s"  - HTML title format
+
+"""
  class development:
   host = "127.0.0.1"
   port = 8080
@@ -55,7 +68,7 @@ class config:
  _default_config_file = "config.yaml"
  
  @classmethod
- def __init__(self, config_file = True, root = None):
+ def __init__(self, config_file=True, root=None):
   if not root:
    root = os.path.abspath(sys.argv[0])
   if os.path.isdir(os.path.realpath(os.path.abspath(root))):
@@ -70,7 +83,7 @@ class config:
    self.load(config_file)
  
  @classmethod
- def load(self, fname = _default_config_file):
+ def load(self, fname=_default_config_file):
   self._dict = load_yaml_file(abspath(fname))
   setattrs(self._dict, self)
   if self.root != self._root:
@@ -79,9 +92,15 @@ class config:
   debug(False)
 
 def abspath(path):
+ """Returns the absolute path for a given subpath, relative to config.root."""
  return os.path.join(config.root, path)
 
 def args():
+ """Returns a list of path components for the current request.
+
+The first element is always the script name.
+
+"""
  path = request.path.split("/")
  path[0] = script()
  return path
@@ -89,12 +108,48 @@ def args():
 @route("/favicon.ico")
 @route("/favicon.png")
 def favicon():
+ """Returns the static/favicon.ico or static/favicon.png file.
+
+Bound to the routes "/favicon.ico" and "/favicon.png".
+
+"""
  if request.path == "/favicon.ico":
   return static_file("favicon.ico", os.path.join(config.root, "static"))
  elif request.path == "/favicon.png":
   return static_file("favicon.png", os.path.join(config.root, "static"))
 
-def generate_tplvars(template_adapter = None, **kwargs):
+def generate_tplvars(template_adapter=None, **kwargs):
+ """Returns a dictionary of template variables.
+
+Set no_entities to False if you do not want special characters other than
+", &, <, and > to be converted to HTML entities.
+
+If any value appears to be a function or method, it is called with no arguments
+and the return value is used instead of the callable itself.
+
+The tplvars key is useful with the %rebase SimpleTemplate keyword.
+
+The dictionary is populated in the following order:
+ - The contents of config.template.defaults
+ - The keyword arguments passed to this function.
+ - handler - the function name handling the current request
+ - page_title - according to config.template.title_format
+ - page_name - as given in kwargs or None if not given
+ - args - the value returned by args()
+ - device - the mobile device name if this request appears to be from a mobile
+            device
+ - mobile - whether this request appears to be from a mobile device
+ - root_path
+ - root_url
+ - site_name - config.name; can be overridden in defaults or kwargs
+ - title_format - config.template.title_format
+ - ua - the user agent for the current request
+ - wii - whether this request appears to be from a Wii
+ - no_entities - whether special characters not in ["&<>] are converted to
+                 HTML entities
+ - tplvars - the same dictionary that is returned by this function.
+
+"""
  if not template_adapter:
   template_adapter = config.template.engine
  tplvars = getattr(config.template, "defaults", {}).copy()
@@ -104,7 +159,8 @@ def generate_tplvars(template_adapter = None, **kwargs):
   tplvars["handler"] = handler()
  if "page_title" not in tplvars:
   if "page_name" in tplvars:
-   tplvars["page_title"] = config.template.title_format % dict(page=tplvars["page_name"], site=site_name)
+   tplvars["page_title"] = (config.template.title_format
+                            % dict(page=tplvars["page_name"], site=site_name))
   else:
    tplvars["page_name"] = None
    tplvars["page_title"] = site_name
@@ -135,12 +191,26 @@ cheetah_tplvars = functools.partial(generate_tplvars, template_adapter=CheetahTe
 jinja2_tplvars = functools.partial(generate_tplvars, template_adapter=Jinja2Template)
 
 def handler():
+ """Returns the name of the function that is handling the current request, or \
+"error" if the current request resulted in an HTTP error."""
  try:
   return app().match_url(request.path)[0].func_name
  except HTTPError:
   return "error"
 
-def htmlentities(text, exclude = "\"&<>", table = htmlentitydefs.codepoint2name):
+def htmlentities(text, exclude="\"&<>", table=htmlentitydefs.codepoint2name):
+ """Converts all special characters except ", &, <, and > to HTML entities.
+
+Lists and dictionaries are handled recursively.
+
+The exclude argument is a list of characters to not process.  It defaults to
+excluding quotation marks, ampersands, and angle brackets.  Keep this in mind
+if you are converting something from PHP.
+
+The table argument specifies an alternate table to use for conversion.  It
+should be of the format {ord(character): "entity-name", ...}; e.g. {34: "quot"}.
+
+"""
  if isinstance(text, list):
   out = []
   for i in text:
@@ -163,16 +233,30 @@ def htmlentities(text, exclude = "\"&<>", table = htmlentitydefs.codepoint2name)
   out = text
  return out
 
-htmlspecialchars = functools.partial(htmlentities, exclude="", table={34: "quot", 38: "amp", 60: "lt", 62: "gt"})
+def htmlspecialchars(text):
+ """Converts all HTML reserved characters (", &, <, and >) to HTML entities.
+
+Lists and dictionaries are handled recursively.
+
+"""
+ return htmlentities(text, exclude="",
+                     table={34: "quot", 38: "amp", 60: "lt", 62: "gt"})
 
 @route("/images/:filename#[a-zA-Z0-9\-_\.\/]+#")
 def images(filename):
+ """Returns a given file located under the "images" directory.
+
+This is bound to the route "/images/:filename#[a-zA-Z0-9\-_\.\/]+#".
+
+"""
  if ".." not in filename.split("/"):
   return static_file(filename, os.path.join(config.root, "images"))
  else:
   abort(403)
 
-def is_mobile(headers, GET, return_device = False):
+def is_mobile(headers, GET, return_device=False):
+ """Attempts to determine whether the current request is a mobile device based \
+on the user agent string."""
  if callable(headers):
   headers = headers()
  if callable(GET):
@@ -226,12 +310,23 @@ is_mobile = functools.partial(is_mobile, lambda: request.header, lambda: request
 
 @route("/layout/:filename#[a-zA-Z0-9\-_\.\/]+#")
 def layout(filename):
+ """Returns a given file located under the "layout" directory.
+
+This is bound to the route "/layout/:filename#[a-zA-Z0-9\-_\.\/]+#".
+
+"""
  if ".." not in filename.split("/"):
   return static_file(filename, os.path.join(config.root, "layout"))
  else:
   abort(403)
 
-def load_yaml_file(filename, is_template = False):
+def load_yaml_file(filename, is_template=False):
+ """Loads a given YAML file name into a dictionary.
+
+If is_template is True, then the file's contents are passed through the
+template function first.
+
+"""
  fo = open(os.path.join(config.root, filename))
  data = fo.read()
  if is_template:
@@ -242,6 +337,8 @@ def load_yaml_file(filename, is_template = False):
  return out
 
 def not_modified(*files):
+ """Raises an HTTP 304 Not Modified header if none of the given files are \
+newer than the HTTP_IF_MODIFIED_SINCE header."""
  times = []
  for i in files:
   times.append(int(os.stat(os.path.join(config.root, i)).st_mtime))
@@ -259,17 +356,36 @@ def not_modified(*files):
 
 @route("/robots.txt")
 def robots_txt():
+ """Returns the contents of the static/robots.txt file if it exists.
+
+Bound to the route "/robots.txt".
+
+"""
  return static_file("robots.txt", os.path.join(config.root, "static"))
 
 def root_path():
+ """Returns the root URL for the application, minus the scheme and netloc."""
  return urllib.quote(script())
 
 def root_url():
+ """Returns the full root URL for the application."""
  url_ = urlparse.urlsplit(request.url)
- return urlparse.urlunsplit((url_.scheme, url_.netloc, urllib.quote(script()), "", ""))
+ return urlparse.urlunsplit((url_.scheme, url_.netloc, urllib.quote(script()),
+                             "", ""))
 
 def run_if_main(name, dev=False, host=None, port=None, parse_args=True, *args,
                 **kwargs):
+ """Runs the application if the given name is "__main__".
+
+Optional arguments:
+ dev: specifies whether development mode is enabled; defaults to False
+ host: host name to bind to; defaults to config.development.host
+ port: port number to bind to; defaults to config.development.port
+ parse_args: whether to parse command-line arguments; defaults to True
+
+Other arguments are passed to Bottle's run function.
+
+"""
  if name == "__main__":
   if parse_args:
    p = optparse.OptionParser(prog=os.path.basename(sys.argv[0]))
@@ -285,6 +401,7 @@ def run_if_main(name, dev=False, host=None, port=None, parse_args=True, *args,
       port=port or config.development.port, *args, **kwargs)
 
 def sanitize(value, exclude=[], optional={}):
+ # TODO:  Figure out what the hell this does
  if isinstance(value, list):
   out = []
   for i in value:
@@ -308,6 +425,14 @@ def sanitize(value, exclude=[], optional={}):
  return out
 
 def script():
+ """Returns the script name.
+
+This is usually the part of the URL's path component that is the parent of all
+URLs for this application.
+
+The FORCE_SCRIPT_NAME environment variable can be used to override this value.
+
+"""
  if "FORCE_SCRIPT_NAME" in request.environ:
   return request.environ.get("FORCE_SCRIPT_NAME", "").rstrip("/")
  if "REQUEST_URI" in request.environ:
@@ -319,7 +444,9 @@ def script():
  else:
   return request.environ.get("SCRIPT_NAME", "").rstrip("/")
 
-def setattrs(d, _cls = None):
+def setattrs(d, _cls=None):
+ """Creates a class object that contains the given dictionary's keys as \
+attributes."""
  setattrs_class = _cls
  if _cls == None:
   class setattrs_class: pass
@@ -331,7 +458,13 @@ def setattrs(d, _cls = None):
  if _cls == None:
   return setattrs_class
 
-def strip_html(value, exclude = []):
+def strip_html(value, exclude=[]):
+ """Attempts to remove HTML from a given string.
+
+Lists and dictionaries are handled recursively.  The optional exclude argument
+specifies dictionary keys that are not to be processed.
+
+"""
  if isinstance(value, list):
   out = []
   for i in value:
@@ -351,13 +484,19 @@ def strip_html(value, exclude = []):
 
 @route("/static/:filename#[a-zA-Z0-9\-_\.\/]+#")
 def static(filename):
+ """Returns a given file located under the "static" directory.
+
+This is bound to the route "/static/:filename#[a-zA-Z0-9\-_\.\/]+#".
+
+"""
  if ".." not in filename.split("/"):
   return static_file(filename, os.path.join(config.root, "static"))
  else:
   abort(403)
 
 _template = template
-def template(tpl_name, template_adapter = None, _passthrough = False, **tplvars):
+def template(tpl_name, template_adapter=None, _passthrough=False, **tplvars):
+ """Extension of Bottle's template function."""
  if not template_adapter:
   template_adapter = config.template.engine
  kwargs = tplvars
@@ -371,6 +510,7 @@ cheetah_template = functools.partial(template, template_adapter=CheetahTemplate)
 jinja2_template = functools.partial(template, template_adapter=Jinja2Template)
 
 def to_unicode(s, encoding="utf8"):
+ """Returns a Unicode version of the given object."""
  if isinstance(s, unicode):
   return s
  if isinstance(s, (str, buffer)):
@@ -378,10 +518,12 @@ def to_unicode(s, encoding="utf8"):
  return unicode(s)
 
 def url_scheme():
+ """Returns the URL scheme for the current request."""
  return urlparse.urlsplit(request.url).scheme
 
 # from Bottle
-def view(tpl_name, template_adapter = None, **tplvars):
+def view(tpl_name, template_adapter=None, **tplvars):
+ """Extension of Bottle's view function."""
  if not template_adapter:
   template_adapter = config.template.engine
  def decorator(func):
