@@ -18,18 +18,20 @@ Requirements
 
 * Python 2.6 or 2.7
 * Mutagen
-* FFmpeg (proprietary codecs recommended)
-* LAME
+* Python Imaging Library
+* PyYAML
 * Bottle
 * pylast
+* FFmpeg (proprietary codecs recommended)
+* LAME
 * mod-wsgi (for Apache only)
 
 To install these packages on Ubuntu, run:
 
-    $ sudo apt-get install python python-mutagen python-setuptools \
-      ffmpeg libavcodec-extra-\* libavdevice-extra-\* libavfilter-extra-\* \
-      libavformat-extra-\* libavutil-extra-\* libpostproc-extra-\* \
-      libswscale-extra-\* lame
+    $ sudo apt-get install python python-imaging python-mutagen \
+      python-setuptools python-yaml ffmpeg libavcodec-extra-\* \
+      libavdevice-extra-\* libavfilter-extra-\* libavformat-extra-\* \
+      libavutil-extra-\* libpostproc-extra-\* libswscale-extra-\* lame
     $ sudo easy_install -U bottle pylast
 
 If you're using Apache, also run:
