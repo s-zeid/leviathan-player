@@ -195,7 +195,8 @@ def set_url(url):
  c = gconf.Client()
  c.set_string(APP_URL_KEY, url)
 
-try:
- sys.exit(main(sys.argv))
-except KeyboardInterrupt:
- pass
+if __name__ == "__main__":
+ try:
+  sys.exit(main(sys.argv))
+ except KeyboardInterrupt:
+  pass
