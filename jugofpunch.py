@@ -28,6 +28,15 @@
 # shall not be used in advertising or otherwise to promote the sale, use or
 # other dealings in this Software without prior written authorization.
 
+"""Extensions to the Bottle framework.
+
+This module contains everything that the bottle module contains, as well as \
+extensions that are intended to aid in Web app development, especially for \
+developers coming from PHP and those who need to easily define global \
+variables in their templates.
+
+"""
+
 import cgi
 import functools
 import htmlentitydefs
@@ -121,11 +130,11 @@ Bound to the routes "/favicon.ico" and "/favicon.png".
 def generate_tplvars(template_adapter=None, **kwargs):
  """Returns a dictionary of template variables.
 
-Set no_entities to False if you do not want special characters other than
+Set no_entities to False if you do not want special characters other than \
 ", &, <, and > to be converted to HTML entities.
 
-If any value appears to be a function or method, it is called with no arguments
-and the return value is used instead of the callable itself.
+If any value appears to be a function or method, it is called with no \
+arguments and the return value is used instead of the callable itself.
 
 The tplvars key is useful with the %rebase SimpleTemplate keyword.
 
@@ -136,8 +145,8 @@ The dictionary is populated in the following order:
  - page_title - according to config.template.title_format
  - page_name - as given in kwargs or None if not given
  - args - the value returned by args()
- - device - the mobile device name if this request appears to be from a mobile
-            device
+ - device - the mobile device name if this request appears to be from a
+            mobile device
  - mobile - whether this request appears to be from a mobile device
  - root_path
  - root_url
@@ -145,8 +154,8 @@ The dictionary is populated in the following order:
  - title_format - config.template.title_format
  - ua - the user agent for the current request
  - wii - whether this request appears to be from a Wii
- - no_entities - whether special characters not in ["&<>] are converted to
-                 HTML entities
+ - no_entities - whether special characters not in ["&<>] are converted
+                 to HTML entities
  - tplvars - the same dictionary that is returned by this function.
 
 """
@@ -203,11 +212,11 @@ def htmlentities(text, exclude="\"&<>", table=htmlentitydefs.codepoint2name):
 
 Lists and dictionaries are handled recursively.
 
-The exclude argument is a list of characters to not process.  It defaults to
-excluding quotation marks, ampersands, and angle brackets.  Keep this in mind
+The exclude argument is a list of characters to not process.  It defaults to \
+excluding quotation marks, ampersands, and angle brackets.  Keep this in mind \
 if you are converting something from PHP.
 
-The table argument specifies an alternate table to use for conversion.  It
+The table argument specifies an alternate table to use for conversion.  It \
 should be of the format {ord(character): "entity-name", ...}; e.g. {34: "quot"}.
 
 """
@@ -323,7 +332,7 @@ This is bound to the route "/layout/:filename#[a-zA-Z0-9\-_\.\/]+#".
 def load_yaml_file(filename, is_template=False):
  """Loads a given YAML file name into a dictionary.
 
-If is_template is True, then the file's contents are passed through the
+If is_template is True, then the file's contents are passed through the \
 template function first.
 
 """
@@ -427,7 +436,7 @@ def sanitize(value, exclude=[], optional={}):
 def script():
  """Returns the script name.
 
-This is usually the part of the URL's path component that is the parent of all
+This is usually the part of the URL's path component that is the parent of all \
 URLs for this application.
 
 The FORCE_SCRIPT_NAME environment variable can be used to override this value.
@@ -461,7 +470,7 @@ attributes."""
 def strip_html(value, exclude=[]):
  """Attempts to remove HTML from a given string.
 
-Lists and dictionaries are handled recursively.  The optional exclude argument
+Lists and dictionaries are handled recursively.  The optional exclude argument \
 specifies dictionary keys that are not to be processed.
 
 """
