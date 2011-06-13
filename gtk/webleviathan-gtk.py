@@ -38,9 +38,6 @@ import os
 import platform
 import sys
 
-if platform.system() == "Linux":
- sys.argv[0] = APP_ID
-
 import gconf
 import gtk
 import urlparse
@@ -117,6 +114,8 @@ def main(argv):
  wv.open(url)
  s.add(wv)
  w.add(s)
+ if platform.system() == "Linux":
+  sys.argv[0] = APP_ID
  try:
   import gnome
   import gnome.ui
