@@ -4,7 +4,7 @@ Leviathan Music Player
 A Web-based music player based on the Leviathan music library manager.
 
 Copyright (C) 2008-2011 Scott Zeid  
-[http://me.srwz.us/leviathan/player](http://me.srwz.us/leviathan/player)
+http://me.srwz.us/leviathan/player
 
 Leviathan Music Player is a Web-based music player.  It uses the Leviathan
 music library manager to find your songs and playlists.  Both the music player
@@ -13,33 +13,36 @@ these files must be edited manually.
 
 Requirements
 ------------
-*  On the server:
-   * Python 2.6 or 2.7
-   * Mutagen
-   * FFmpeg (proprietary codecs recommended)
-   * LAME
-   * Bottle
-   * pylast
-   * mod-wsgi (for Apache only)
-   
-   To install these packages on Ubuntu, run:
-   
-       $ sudo apt-get install python python-mutagen python-setuptools \
-         ffmpeg libavcodec-extra-\* libavdevice-extra-\* libavfilter-extra-\* \
-         libavformat-extra-\* libavutil-extra-\* libpostproc-extra-\* \
-         libswscale-extra-\* lame
-       $ sudo easy_install -U bottle pylast
-   
-   If you're using Apache, also run:
-   
-       $ sudo apt-get install libapache2-mod-wsgi
-   
-*  On the client:
-   * A standards-compliant Web browser that supports HTML5/CSS3/JavaScript.
-     Firefox 4+, Google Chrome, Safari, and Opera 10.5+ should work.  IE9
-     might work.  IE7 works but is very buggy.  IE6 and earlier will
-     probably NOT work.
-   * Adobe Flash Player 9.0+
+
+### On the server ###
+
+* Python 2.6 or 2.7
+* Mutagen
+* FFmpeg (proprietary codecs recommended)
+* LAME
+* Bottle
+* pylast
+* mod-wsgi (for Apache only)
+
+To install these packages on Ubuntu, run:
+
+    $ sudo apt-get install python python-mutagen python-setuptools \
+      ffmpeg libavcodec-extra-\* libavdevice-extra-\* libavfilter-extra-\* \
+      libavformat-extra-\* libavutil-extra-\* libpostproc-extra-\* \
+      libswscale-extra-\* lame
+    $ sudo easy_install -U bottle pylast
+
+If you're using Apache, also run:
+
+    $ sudo apt-get install libapache2-mod-wsgi
+
+### On the client ###
+
+* A standards-compliant Web browser that supports HTML5/CSS3/JavaScript.
+  Firefox 4+, Google Chrome, Safari, and Opera 10.5+ should work.  IE9
+  might work.  IE7 works but is very buggy.  IE6 and earlier will
+  probably NOT work.
+* Adobe Flash Player 9.0+
 
 Installation
 ------------
@@ -50,21 +53,21 @@ Configuration
 Leviathan Music Player uses two configuration files:
 
 * `leviathan/leviathan.yaml`
-  
+
   This contains settings for the music manager.  Here is where you enter the
   paths to your music collection, your playlist folders, FFmpeg, and LAME,
   as well as the quality settings for MP3 encoding.  Also specify what you
   want album art files to be called (use albumart.jpg if you intend to sync
-  your music collection with an Android device).
-  
+  your music collection with an Android device).  
+
   If you already have another copy of Leviathan Music Manager already set up,
-  you can change the `leviathan.yaml` setting in `webleviathan.yaml` to point to
-  the path of the configuration file you already have.
-  
+  you can change the `leviathan.yaml` setting in `webleviathan.yaml` to point
+  to the path of the configuration file you already have.
+
 * `webleviathan.yaml`
-  
+
   This contains settings for the music player.  You can:
-  
+
   * Set whether repeat, shuffle, and Last.fm scrobbling are on or off by
     default.
   * Enter your Last.fm username and password if you wish to scrobble your
