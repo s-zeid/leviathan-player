@@ -3,7 +3,7 @@ Leviathan Music Player
 
 A Web-based music player based on the Leviathan music library manager.
 
-Copyright (C) 2008-2011 Scott Zeid  
+Copyright (C) 2010-2011 Scott Zeid  
 http://me.srwz.us/leviathan/player
 
 Leviathan Music Player is a Web-based music player.  It uses the Leviathan
