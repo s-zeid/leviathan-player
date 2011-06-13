@@ -64,6 +64,7 @@ Leviathan Music Player uses two configuration files:
  * `webleviathan.yaml`
    
    This contains settings for the music player.  You can:
+   
     * Set whether repeat, shuffle, and Last.fm scrobbling are on or off by
       default.
     * Enter your Last.fm username and password if you wish to scrobble your
