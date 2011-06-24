@@ -282,16 +282,19 @@ img {
   min-height: 24px;
   border-top: 1px solid {{!theme["list_item_border"][0]}};
  }
- #library .list > ul > li:first-child {
+ #library li.border {
+  min-height: 0; height: 0; max-height: 0;
+ }
+ #library .list > ul > li:first-child, #library li.expanded + li {
   border-top-style: none;
  }
- #library ul ul li, #library li.expanded + li {
+ #library ul ul li {
   border-top-color: {{!theme["list_item_border"][1]}};
  }
- #library ul ul ul li, #library li.expanded li.expanded + li {
+ #library ul ul ul li {
   border-top-color: {{!theme["list_item_border"][2]}};
  }
- #library ul ul ul ul li, #library li.expanded li.expanded li.expanded + li {
+ #library ul ul ul ul li {
   border-top-color: {{!theme["list_item_border"][3]}};
  }
  #library li.selected {

@@ -131,6 +131,8 @@ function get_list_el_from_json(json) {
   li.append(children);
   ul.append(li);
  }
+ var border = $("<li></li>").addClass("border");
+ ul.append(border);
  return ul;
 }
 
@@ -490,6 +492,8 @@ function queue_push_each(list_el, replace) {
 }
 
 function queue_push_one(item_el, queue_el) {
+ if (item_el.hasClass("border"))
+  return;
  var queue_el = queue_el;
  if (typeof(queue_el) == "undefined")
   queue_el = get_queue_el();
