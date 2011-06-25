@@ -100,6 +100,65 @@ Default values:
    os.chdir(self.root)
   debug(False)
 
+class JugOfPunchMiddleware(object):
+ """Middleware that does some stuff specific to Jug of Punch.
+
+Currently, it handles the following WSGI environment variables and HTTP \
+headers:
+
+FORCE_HTTPS / X-JugOfPunch-ForceHTTPS
+  Forces the URL scheme to "https" and sets "HTTP_X_FORWARDED_SSL" to "on".
+FORCE_SCRIPT_NAME / X-JugOfPunch-ForceScriptName
+  Forces the script name (the part leading up to the root of the app) to the
+  specified value.  Useful in conjunction with REMOVE_PATH_PREFIX.
+REMOVE_PATH_PREFIX / X-JugOfPunch-RemovePathPrefix
+  Removes the specified prefix (e.g. /some/thing) from the request's path.
+
+If both the environment variable and the header for the same setting are set, \
+then the environment variable takes precedence.
+
+"""
+ def __init__(self, app):
+  self.app = app
+ def __call__(self, environ, start_response):
+  print environ
+  self.fix_https(environ)
+  self.fix_path_info(environ)
+  self.fix_script_name(environ)
+  return self.app(environ, start_response)
+ def fix_https(self, environ):
+  force_https = False
+  if "FORCE_HTTPS" in environ:
+   force_https = environ.get("FORCE_HTTPS", "") == "True"
+   del environ["FORCE_HTTPS"]
+  elif "HTTP_X_JUGOFPUNCH_FORCEHTTPS" in environ:
+   force_https = environ.get("HTTP_X_JUGOFPUNCH_FORCEHTTPS", "") == "True"
+   del environ["HTTP_X_JUGOFPUNCH_FORCEHTTPS"]
+  if force_https:
+   environ["HTTP_X_FORWARDED_SSL"] = "on"
+   environ["wsgi.url_scheme"] = "https"
+ def fix_path_info(self, environ):
+  prefix = None
+  if "REMOVE_PATH_PREFIX" in environ:
+   prefix = environ.get("REMOVE_PATH_PREFIX", "").rstrip("/")
+   del environ["REMOVE_PATH_PREFIX"]
+  elif "HTTP_X_JUGOFPUNCH_REMOVEPATHPREFIX" in environ:
+   prefix = environ.get("HTTP_X_JUGOFPUNCH_REMOVEPATHPREFIX", "").rstrip("/")
+   del environ["HTTP_X_JUGOFPUNCH_REMOVEPATHPREFIX"]
+  if prefix and environ["PATH_INFO"].startswith(prefix):
+   environ["PATH_INFO"] = environ["PATH_INFO"].split(prefix, 1)[-1]
+ def fix_script_name(self, environ):
+  script_name = None
+  if "FORCE_SCRIPT_NAME" in environ:
+   script_name = environ.get("FORCE_SCRIPT_NAME", "").rstrip("/")
+   del environ["FORCE_SCRIPT_NAME"]
+  elif "HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME" in environ:
+   script_name = (environ.get("HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME", "")
+                  .rstrip("/"))
+   del environ["HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME"]
+  if script_name:
+   environ["SCRIPT_NAME"] = script_name
+
 def abspath(path):
  """Returns the absolute path for a given subpath, relative to config.root."""
  return os.path.join(config.root, path)
@@ -391,14 +450,27 @@ def root_path():
 def root_url():
  """Returns the full root URL for the application.
 
-Set the FORCE_HTTPS environment variable or the X-JugOfPunch-ForceHTTPS header
-to True (case-sensitive) to force this to use the "https" scheme.  The
+Set the FORCE_HTTPS WSGI environment variable or the X-JugOfPunch-ForceHTTPS \
+header to True (case-sensitive) to force this to use the "https" scheme.  The \
 environment variable takes precedence over the header if both are set.
 
 """
  url_ = urlparse.urlsplit(request.url)
- return urlparse.urlunsplit((url_scheme(), url_.netloc, urllib.quote(script()),
+ return urlparse.urlunsplit((url_.scheme, url_.netloc, urllib.quote(script()),
                              "", ""))
+
+_run = run
+def run(app=None, *args, **kwargs):
+ """Wrapper for Bottle's run function.
+
+A JugOfPunchMiddleware is added to the app before it is run.
+
+"""
+ app = app or default_app()
+ if isinstance(app, basestring):
+  app = load_app(app)
+ app = JugOfPunchMiddleware(app)
+ _run(app=app, *args, **kwargs)
 
 def run_if_main(name, dev=False, host=None, port=None, parse_args=True, *args,
                 **kwargs):
@@ -457,15 +529,11 @@ def script():
 This is usually the part of the URL's path component that is the parent of all \
 URLs for this application.
 
-The FORCE_SCRIPT_NAME environment variable or the X-JugOfPunch-ForceScriptName
-header can be used to override this value.  The environment variable takes
-precedence over the header if both are set.
+The FORCE_SCRIPT_NAME WSGI environment variable or the \
+X-JugOfPunch-ForceScriptName header can be used to override this value.  The \
+environment variable takes precedence over the header if both are set.
 
 """
- if "FORCE_SCRIPT_NAME" in request.environ:
-  return request.environ.get("FORCE_SCRIPT_NAME", "").rstrip("/")
- if "X-JugOfPunch-ForceScriptName" in request.headers:
-  return request.headers.get("X-JugOfPunch-ForceScriptName", "").rstrip("/")
  if "REQUEST_URI" in request.environ:
   REQUEST_URI = urlparse.urlsplit(request.environ.get("REQUEST_URI", "")).path
   REQUEST_URI = urllib.unquote(REQUEST_URI)
@@ -551,17 +619,11 @@ def to_unicode(s, encoding="utf8"):
 def url_scheme():
  """Returns the URL scheme for the current request.
 
-Set the FORCE_HTTPS environment variable or the X-JugOfPunch-ForceHTTPS header
-to True (case-sensitive) to force this to return "https".  The environment
-variable takes precedence over the header if both are set.
+Set the FORCE_HTTPS WSGI environment variable or the X-JugOfPunch-ForceHTTPS \
+header to True (case-sensitive) to force this to return "https".  The \
+environment variable takes precedence over the header if both are set. \
 
 """
- if request.environ.get("FORCE_HTTPS") != None:
-  if request.environ.get("FORCE_HTTPS", "") == "True":
-   return "https"
- if request.headers.get("X-JugOfPunch-ForceHTTPS") != None:
-  if request.headers.get("X-JugOfPunch-ForceHTTPS", "") == "True":
-   return "https"
  return urlparse.urlsplit(request.url).scheme
 
 # from Bottle
