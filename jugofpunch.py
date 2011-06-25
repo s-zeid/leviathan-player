@@ -201,11 +201,23 @@ jinja2_tplvars = functools.partial(generate_tplvars, template_adapter=Jinja2Temp
 
 def handler():
  """Returns the name of the function that is handling the current request, or \
-"error" if the current request resulted in an HTTP error."""
+"error" if the current request resulted in an HTTP error, or if the function \
+cannot be found."""
+ # TODO:  Update this function when Bottle 0.10 code gets pushed and "the
+ #        semantics [of Bottle.match] change"
+ match = None
  try:
-  return app().match_url(request.path)[0].func_name
+  # Bottle 0.9
+  match = app().match(request.environ)
  except HTTPError:
   return "error"
+ except AttributeError:
+  try:
+   # Bottle 0.8
+   match = app().match_url(request.path)
+  except HTTPError:
+   return "error"
+ return match[0].func_name if match else "error"
 
 def htmlentities(text, exclude="\"&<>", table=htmlentitydefs.codepoint2name):
  """Converts all special characters except ", &, <, and > to HTML entities.
@@ -511,7 +523,7 @@ def template(tpl_name, template_adapter=None, _passthrough=False, **tplvars):
  kwargs = tplvars
  if not _passthrough:
   kwargs = generate_tplvars(template_adapter, **tplvars)
- return _template(tpl_name, template_adapter, **kwargs)
+ return _template(tpl_name, template_adapter=template_adapter, **kwargs)
 
 # from Bottle
 mako_template = functools.partial(template, template_adapter=MakoTemplate)
