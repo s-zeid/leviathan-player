@@ -158,6 +158,9 @@ then the environment variable takes precedence.
    del environ["HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME"]
   if script_name:
    environ["SCRIPT_NAME"] = script_name
+   environ["SCRIPT_NAME_FORCED"] = "True"
+  else:
+   environ["SCRIPT_NAME_FORCED"] = "False"
 
 def abspath(path):
  """Returns the absolute path for a given subpath, relative to config.root."""
@@ -534,7 +537,9 @@ X-JugOfPunch-ForceScriptName header can be used to override this value.  The \
 environment variable takes precedence over the header if both are set.
 
 """
- if "REQUEST_URI" in request.environ:
+ if request.environ.get("SCRIPT_NAME_FORCED", "False") == "True":
+  return request.environ.get("SCRIPT_NAME", "").rstrip("/")
+ elif "REQUEST_URI" in request.environ:
   REQUEST_URI = urlparse.urlsplit(request.environ.get("REQUEST_URI", "")).path
   REQUEST_URI = urllib.unquote(REQUEST_URI)
   if request.path == "/":
