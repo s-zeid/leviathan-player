@@ -121,7 +121,6 @@ then the environment variable takes precedence.
  def __init__(self, app):
   self.app = app
  def __call__(self, environ, start_response):
-  print environ
   self.fix_https(environ)
   self.fix_path_info(environ)
   self.fix_script_name(environ)
@@ -537,8 +536,12 @@ X-JugOfPunch-ForceScriptName header can be used to override this value.  The \
 environment variable takes precedence over the header if both are set.
 
 """
- if request.environ.get("SCRIPT_NAME_FORCED", "False") == "True":
-  return request.environ.get("SCRIPT_NAME", "").rstrip("/")
+ # Necessary due to some stupid bug in uWSGI, Python 2.6, or something; I'm
+ # not sure which
+ if request.environ.get("FORCE_SCRIPT_NAME", ""):
+  return request.environ["FORCE_SCRIPT_NAME"].rstrip("/")
+ elif request.environ.get("HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME", ""):
+  return request.environ["HTTP_X_JUGOFPUNCH_FORCESCRIPTNAME"].rstrip("/")
  elif "REQUEST_URI" in request.environ:
   REQUEST_URI = urlparse.urlsplit(request.environ.get("REQUEST_URI", "")).path
   REQUEST_URI = urllib.unquote(REQUEST_URI)
