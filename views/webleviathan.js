@@ -395,7 +395,8 @@ function play_song(el) {
  var art_url = el.attr("data-song-art-directory") + "/album.png?size=92";
  if ($("#artwork .artwork").attr("src") != art_url) {
   $("#artwork .artwork").replaceWith(
-   $("<img />").addClass("artwork").attr("src", "").attr("alt", "").hide()
+   $("<img />").addClass("artwork").attr("src", "{{root_url}}/images/blank.png")
+   .attr("alt", "").hide()
   );
   $("#artwork .generic").show();
   var img = $("<img />").addClass("artwork").attr("src", art_url);
