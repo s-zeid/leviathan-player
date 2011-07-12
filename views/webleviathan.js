@@ -29,6 +29,8 @@
  *
  */
 
+var PREVIOUS_NO_REPLAY_THRESHOLD = 3;
+
 var play_history = [];
 var previous_button_last_pressed = 0;
 var repeat = true;
@@ -344,7 +346,8 @@ function play_previous_song() {
  var last_press = previous_button_last_pressed;
  previous_button_last_pressed = $.now();
  if (previous_button_last_pressed - last_press > 1000 &&
-     (get_player().getPosition() > 10 || play_history.length == 0)) {
+     (get_player().getPosition() > PREVIOUS_NO_REPLAY_THRESHOLD ||
+      play_history.length == 0)) {
   get_player().seek(0);
   scrobbled = false;
   if (get_player().getBuffer() == 100)
