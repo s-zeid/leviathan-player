@@ -26,12 +26,15 @@ Requirements
 * LAME
 * mod-wsgi (for Apache only)
 
+Gevent is recommended for better performance, but it is not a requirement.
+
 To install these packages on Ubuntu, run:
 
-    $ sudo apt-get install python python-imaging python-mutagen \
-      python-setuptools python-yaml ffmpeg libavcodec-extra-\* \
-      libavdevice-extra-\* libavfilter-extra-\* libavformat-extra-\* \
-      libavutil-extra-\* libpostproc-extra-\* libswscale-extra-\* lame
+    $ sudo apt-get install python python-gevent python-imaging \
+      python-mutagen python-setuptools python-yaml ffmpeg \
+      libavcodec-extra-\* libavdevice-extra-\* libavfilter-extra-\* \
+      libavformat-extra-\* libavutil-extra-\* libpostproc-extra-\* \
+      libswscale-extra-\* lame
     $ sudo easy_install -U bottle pylast
 
 If you're using Apache, also run:
