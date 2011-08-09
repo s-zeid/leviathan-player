@@ -1081,6 +1081,7 @@ class Library(object):
      title = to_unicode(mg.get("title", title)[0]
                         if mg.get("title", title)[0] != "" else title[0])
      sort_title = self._get_sort_value(mg, relpath, "title", title)
+     artist = sort_artist = ""
      for tag in ("artist", "performer", "albumartist"):
       if tag in mg:
        artist = to_unicode(mg.get(tag, [""])[0])
@@ -1092,8 +1093,8 @@ class Library(object):
       length = mg.info.length
      except AttributeError:
       length = None
-    ret = [to_unicode(relpath), title, sort_title, artist, sort_artist, album,
-           sort_album, length]
+     ret = [to_unicode(relpath), title, sort_title, artist, sort_artist, album,
+            sort_album, length]
    finally:
     os.chdir(cwd)
   return ret
