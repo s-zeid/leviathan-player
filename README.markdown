@@ -19,15 +19,15 @@ Requirements
 
 ### On the server ###
 
-* Python 2.6 or 2.7
-* Mutagen
-* Python Imaging Library
-* PyYAML
-* Bottle
-* pylast
-* FFmpeg (proprietary codecs recommended)
-* LAME
-* mod-wsgi (for Apache only)
+ * Python 2.6 or 2.7
+ * Mutagen
+ * Python Imaging Library
+ * PyYAML
+ * Bottle
+ * pylast
+ * FFmpeg (proprietary codecs recommended)
+ * LAME
+ * mod-wsgi (for Apache only)
 
 Gevent is recommended for better performance, but it is not a requirement.
 
@@ -46,11 +46,11 @@ If you're using Apache, also run:
 
 ### On the client ###
 
-* A standards-compliant Web browser that supports HTML5/CSS3/JavaScript.
-  Firefox 4+, Google Chrome, Safari, and Opera 10.5+ should work.  IE9
-  might work.  IE7 works but is very buggy.  IE6 and earlier will
-  probably NOT work.
-* Adobe Flash Player 9.0+
+ * A standards-compliant Web browser that supports HTML5/CSS3/JavaScript.
+   Firefox 4+, Google Chrome, Safari, and Opera 10.5+ should work.  IE9
+   might work.  IE7 works but is very buggy.  IE6 and earlier will
+   probably NOT work.
+ * Adobe Flash Player 9.0+
 
 Installation
 ------------
@@ -60,29 +60,29 @@ Configuration
 -------------
 Leviathan Music Player uses two configuration files:
 
-* `leviathan/leviathan.yaml`
+ * `leviathan/leviathan.yaml`
+ 
+   This contains settings for the music manager.  Here is where you enter the
+   paths to your music collection, your playlist folders, FFmpeg, and LAME,
+   as well as the quality settings for MP3 encoding.  Also specify what you
+   want album art files to be called (use albumart.jpg if you intend to sync
+   your music collection with an Android device).  
+ 
+   If you already have another copy of Leviathan Music Manager already set up,
+   you can change the `leviathan.yaml` setting in `webleviathan.yaml` to point
+   to the path of the configuration file you already have.
 
-  This contains settings for the music manager.  Here is where you enter the
-  paths to your music collection, your playlist folders, FFmpeg, and LAME,
-  as well as the quality settings for MP3 encoding.  Also specify what you
-  want album art files to be called (use albumart.jpg if you intend to sync
-  your music collection with an Android device).  
-
-  If you already have another copy of Leviathan Music Manager already set up,
-  you can change the `leviathan.yaml` setting in `webleviathan.yaml` to point
-  to the path of the configuration file you already have.
-
-* `webleviathan.yaml`
-
-  This contains settings for the music player.  You can:
-
-  * Set whether repeat, shuffle, and Last.fm scrobbling are on or off by
-    default.
-  * Enter your Last.fm username and password if you wish to scrobble your
-    music.  If you do this, make sure nobody can access this file except you.
-  * Choose a color theme for the music player.  Color themes are contained
-    in the `themes` directory.  Enter the name of the theme you want to use
-    without the .yaml extension.
+ * `webleviathan.yaml`
+ 
+   This contains settings for the music player.  You can:
+ 
+   * Set whether repeat, shuffle, and Last.fm scrobbling are on or off by
+     default.
+   * Enter your Last.fm username and password if you wish to scrobble your
+     music.  If you do this, make sure nobody can access this file except you.
+   * Choose a color theme for the music player.  Color themes are contained
+     in the `themes` directory.  Enter the name of the theme you want to use
+     without the .yaml extension.
 
 Artwork Cache
 -------------
