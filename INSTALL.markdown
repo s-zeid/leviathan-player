@@ -2,7 +2,7 @@ Leviathan Music Player Installation Instructions
 ================================================
 
 Copyright (C) 2010-2011 Scott Zeid  
-http://me.srwz.us/leviathan/web
+http://me.srwz.us/leviathan/player
 
 Note:  When running shell commands, leave out the backticks.  All shell
 commands in this file assume that you are using a Unix-like operating system
