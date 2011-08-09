@@ -14,7 +14,7 @@ delete your database file and run `leviathan/leviathan.py scan` to rebuild
 it.**
 
  1.  Make sure you have all of the server dependencies installed.  See the
-     README file for the list of requirements.
+     [README.markdown][] file for the list of requirements.
 
  2.  Copy webleviathan.yaml.dist to webleviathan.yaml and edit the settings.
 
@@ -40,6 +40,8 @@ it.**
 
  8.  Open Leviathan Music Player in your favorite standards-compliant Web
      browser and enjoy your music.
+
+[README.markdown]: https://github.com/scottywz/leviathan-player/blob/master/README.markdown
 
 Starting the server
 ===================
