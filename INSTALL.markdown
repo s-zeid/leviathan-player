@@ -1,12 +1,17 @@
-Leviathan Music Player
-A Web-based music player based on the Leviathan music library manager.
+Leviathan Music Player Installation Instructions
+================================================
 
-Copyright (C) 2010-2011 Scott Zeid
+Copyright (C) 2010-2011 Scott Zeid  
 http://me.srwz.us/leviathan/web
 
-Installation Instructions
+Note:  When running shell commands, leave out the backticks.  All shell
+commands in this file assume that you are using a Unix-like operating system
+(e.g. Linux or Mac OS X), that you can use sudo, and that your working
+directory is the same one where webleviathan.py is located.
 
-(When running shell commands, leave out the backticks.)
+**IMPORTANT:  If you used Leviathan before August 9, 2011, you will need to
+delete your database file and run **`leviathan/leviathan.py **scan**`** to
+rebuild it.**
 
  1.  Make sure you have all of the server dependencies installed.  See the
      README file for the list of requirements.
@@ -17,10 +22,11 @@ Installation Instructions
  4.  Copy leviathan/leviathan.yaml.dist to leviathan.yaml and edit the
      settings.  Alternatively, you can edit the leviathan.yaml setting in
      webleviathan.yaml to point to an already existing leviathan.yaml file.
- 5.  Run `./leviathan.py cache` to load your music library into the database.
-     Then run `./leviathan.py to-mp3` to convert your music to MP3 format.
+ 5.  Run `leviathan/leviathan.py scan` to load your music library into the
+     database.  Then run `leviathan/leviathan.py to-mp3` to convert your music
+     to MP3 format.
  6.  Start the server using the instructions for your Web server under
-     Starting the Server.
+     *Starting the Server*.
  7.  If you are running this on a public-facing server, it is strongly
      recommended to set up HTTPS and HTTP authentication on your server.  I am
      NOT liable if you get sued, arrested, or prosecuted for copyright
@@ -71,7 +77,7 @@ To run Leviathan Music Player under Cherokee:
  1.  Copy uwsgi.xml.dist to uwsgi.xml and change python-path to point to
      the directory where webleviathan.py is located.
  2.  Make sure cherokee-admin is installed (if you're using the Cherokee
-     PPA, run `sudo apt-get install cherokee-admin`).
+     PPA on Ubuntu, run `sudo apt-get install cherokee-admin`).
  3.  Start cherokee-admin (`sudo cherokee-admin`), go to the URL it gives
      you, and copy/paste the one-time password.
  4.  Go to the vServers.
