@@ -54,7 +54,9 @@ If you're using Apache, also run:
 
 Installation
 ------------
-See the `INSTALL` file for installation instructions.
+See the [INSTALL.markdown][] file for installation instructions.
+
+[INSTALL.markdown]: https://github.com/scottywz/leviathan-player/blob/master/INSTALL.markdown
 
 Configuration
 -------------
