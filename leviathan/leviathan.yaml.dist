@@ -2,20 +2,47 @@
 # Leviathan configuration #
 ###########################
 
+# Enclose paths in quotes if you are using Windows, if they start with a [
+# or {, or if they contain colons.
+
 # Library settings
-library:           /path/to/music/library
-playlists:         /path/to/playlists
-playlists_mp3:     /path/to/mp3-only-playlists
-playlist_db:       /path/to/database
+music_path:        /path/to/music/library
+database_path:     /path/to/database
 albumart_filename: albumart.jpg
 
+# Playlist formats
+# You can have more than one playlist folder, each with its own settings
+# The one with "default: True" is used for scanning.
+#
+# Notes:
+#  - `format` can be either m3u, extm3u, or pls.
+#  - `title_format` is not used in the regular M3U format.
+#  - `substitutions` allows you to replace strings in the playlist file.
+#  - Set the third element of a substitution to True to make the search string
+#    a regular expression.  If you do this, enclose the regex in quotes and be
+#    sure to escape backslashes.  Do not escape backslashes in the replace
+#    string if it is not enclosed in quotes.
+playlist_formats:
+ /path/to/playlists:
+  default:        True
+  format:         m3u
+  title_format:   $title
+  mp3_only:       False
+  absolute_paths: True
+  substitutions:
+   # - [/path/to/music/library, /some/other/path]
+ /path/to/mp3/playlists:
+  default:        False
+  format:         m3u
+  title_format:   $title
+  mp3_only:       True
+  absolute_paths: True
+  substitutions:
+   # - [/path/to/music/library, /some/other/path]
+
 # List of playlists to ignore
-# Replace [] with a list of playlists to ignore, like this:
-#  - Playlist 1
-#  - Playlist 2
-#  ...
 db_ignore_playlists:
- []  
+ -
 
 # MP3 encoding settings
 ffmpeg:            ffmpeg  # Path to FFmpeg
@@ -34,3 +61,36 @@ vbr_quality:       0       # Set to Null if you're using constant bitrate
 #  7: 80-120 kbps
 #  8: 70-105 kbps
 #  9: 45-85 kbps (lowest quality; smallest file size)
+
+# Sort tag settings
+
+# This allows you to tell Leviathan to respect the sorting tags of files in
+# certain subdirectories of your music folder.  If you want this behavior,
+# then add the subdirectory to the appropriate whitelists depending on which
+# sorting tags you want Leviathan to respect.  If you want all sorting tags
+# of a particular type in your entire library to be respected, then set the
+# whitelist key for that tag to True (e.g. `whitelist: True`).
+# 
+# The blacklist keys specify subdirectories for which you want Leviathan to
+# IGNORE the sorting tags for.  This only applies when a particular tag is set
+# to True above.
+# 
+# Use paths relative to your music folder.  Absolute paths will be ignored.
+# 
+# Leviathan ignores all sorting tags of all kinds by default.
+sort_tags:
+ title:
+  whitelist:
+   -
+  blacklist:
+   -
+ artist:
+  whitelist:
+   -
+  blacklist:
+   -
+ album:
+  whitelist:
+   -
+  blacklist:
+   -

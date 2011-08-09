@@ -42,6 +42,7 @@ from StringIO import StringIO
 from urllib import quote
 
 from PIL import Image
+import pylast
 import yaml
 
 try:
@@ -52,7 +53,6 @@ except ImportError:
 
 from jugofpunch import *
 import leviathan
-import pylast
 
 config(root=__file__)
 
@@ -105,15 +105,16 @@ def artwork(relpath=None, mode="album"):
   return static_file(os.path.basename(image_path), os.path.dirname(image_path))
 
 def cache_artwork(image_path, side_length, generic=False):
- if not generic and not image_path.startswith(library.library.encode("utf-8")):
-  raise ValueError("image_path must be within the library root")
+ if not generic:
+  if not image_path.startswith(library.music_path.encode("utf8")):
+   raise ValueError("image_path must be within the library root")
  cache_dir = generic_artwork_cache_dir if generic else library_artwork_cache_dir
- cache_dir = cache_dir.encode("utf-8")
+ cache_dir = cache_dir.encode("utf8")
  if generic:
   save_path = os.path.join(cache_dir, "artwork.%d.png" % side_length)
  else:
   relpath = os.path.dirname(os.path.relpath(image_path,
-                                            library.library.encode("utf-8")))
+                                            library.music_path.encode("utf8")))
   save_path = os.path.join(cache_dir, relpath, "artwork.%d.png" % side_length)
  if not os.path.isdir(os.path.realpath(os.path.dirname(save_path))):
   os.makedirs(os.path.realpath(os.path.dirname(save_path)),
@@ -143,8 +144,8 @@ def get_album_art_relpath(relpath, side_length=0):
  image_path = None
  cache_filename = "artwork.%d.png" % side_length
  if relpath:
-  for d in ((library_artwork_cache_dir.encode("utf-8"), True),
-            (library.library.encode("utf-8"), False)):
+  for d in ((library_artwork_cache_dir.encode("utf8"), True),
+            (library.music_path.encode("utf8"), False)):
    path = os.path.join(d[0], relpath)
    for p in (path, os.path.dirname(path)):
     p = os.path.join(p, path)
@@ -171,8 +172,8 @@ def get_artist_art_relpath(relpath, side_length=0):
  image_path = None
  cache_filename = "artwork.%d.png" % side_length
  if relpath:
-  for d in ((library_artwork_cache_dir.encode("utf-8"), True),
-            (library.library.encode("utf-8"), False)):
+  for d in ((library_artwork_cache_dir.encode("utf8"), True),
+            (library.music_path.encode("utf8"), False)):
    p = os.path.join(d[0], [i for i in os.path.split(relpath) if i][0])
    if os.path.isdir(os.path.realpath(p)):
     l = sorted(os.listdir(p))
@@ -192,30 +193,34 @@ def get_artist_art_relpath(relpath, side_length=0):
  return image_path
 
 def get_list(category, id=None, queue=None):
- # Format: (id, name)
+ # Format: (id, name, Song object) unless otherwise specified
  # id is the same as name for artists and albums
  if category == "queue":
   queue = queue if queue != None else request.GET.get("queue", "").split(",")
-  l = [library.get_song(int(i)) for i in queue if i != ""]
-  return [(i[0], i[1].title, i[1]) for i in l]
+  l = [library.songs[int(i)] for i in queue if i != ""]
+  return [(i.id, i.title, i) for i in l]
  elif category == "artist":
-  return [(i[0], i[1].title, i[1]) for i in library.get_artist(id)]
+  return [(i.id, i.title, i) for i in library.artists[id]]
  elif category == "artists":
-  return [(i, i, None) for i in library.get_artists()]
+  # Format: (name, name, None)
+  return [(i.name, i.name, None) for i in library.artists]
  elif category == "album":
-  return [(i[0], i[1].title, i[1]) for i in library.get_album(id[0], id[1])]
+  return [(i.id, i.title, i) for i in library.albums(artist=id[0],album=id[1])]
  elif category == "albums":
-  return [("%s_%s" % tuple(i),
-           i[1] if id else "%s - %s"%(i[1] or "(Unknown)", i[0] or "(Unknown)"),
-           i) for i in library.get_albums(id)]
+  # Format: ("artistname_albumname", display name, tuple(artist, name))
+  return [("%s_%s" % (i.artist, i.name),
+           i.album if id
+            else "%s - %s" % (i.album or "(Unknown)", i.artist or "(Unknown)"),
+           (i.artist, i.name)) for i in library.albums(artist=id)]
  elif category == "playlist":
-  return [(i[0], i[1].title, i[1]) for i in library.get_playlist(int(id))]
+  return [(i, i.title, i) for i in library.playlists[int(id)]]
  elif category == "playlists":
-  return [(i[0], i[1], None) for i in library.get_playlists()]
+  # Format: (id, name, None)
+  return [(i.id, i.name, None) for i in library.playlists]
  elif category == "song":
-  return [(i[0], i[1].title, i[1]) for i in [library.get_song(int(id))]]
+  return [(i, i.title, i) for i in [library.songs[int(id)]]]
  elif category == "songs":
-  return [(i[0], i[1].title, i[1]) for i in library.get_songs()]
+  return [(i, i.title, i) for i in library.songs]
 
 @route("/")
 @view("index")
@@ -235,7 +240,11 @@ def library(relpath):
  if not relpath.lower().endswith(".mp3"):
   relpath = os.path.splitext(relpath)[0] + ".mp3"
  basename = os.path.basename(relpath)
- directory = os.path.dirname(os.path.join(library.library.encode("utf-8"),
+ try:
+  library.check_path(relpath, library.music_path)
+ except ValueError:
+  raise HTTPError(404)
+ directory = os.path.dirname(os.path.join(library.music_path.encode("utf8"),
                                           relpath))
  return static_file(basename, directory)
 
@@ -253,11 +262,11 @@ def list_category(category, format=""):
                  "playlists", "song", "songs"):
   l = []
   for i in get_list(category, id):
-   quoted_id = quote(to_unicode(i[0]).encode("utf-8"), "")
+   quoted_id = quote(to_unicode(i[0]).encode("utf8"), "")
    dom_id = (parent+"_" if parent else "")+"%s_entry_%s" % (category,quoted_id)
    dom_id = category + "_" + hashlib.sha1(dom_id).hexdigest()
    info = ((i[2] if isinstance(i[2], leviathan.Song) else
-            [quote(to_unicode(j).encode("utf-8"), "") for j in i[2]])
+            [quote(to_unicode(j).encode("utf8"), "") for j in i[2]])
            if i[2] else None)
    name = full_name = to_unicode(i[1]) if i[1] else "(Unknown)"
    if category in ("artist", "album", "playlist", "queue", "song", "songs"):
@@ -270,9 +279,9 @@ def list_category(category, format=""):
     relpath = i[2].relpath
     if not relpath.lower().endswith(".mp3"):
      relpath = os.path.splitext(relpath)[0] + ".mp3"
-    url = root_url() + "/library/" + quote(relpath.encode("utf-8"))
+    url = root_url() + "/library/" + quote(relpath.encode("utf8"))
     art_relpath = os.path.dirname(relpath)
-    art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf-8"))
+    art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf8"))
     song = dict(relpath=i[2].relpath, title=i[2].title, artist=i[2].artist,
                 album=i[2].album, url=url, art_directory=art_url)
     icon = art_url + "/album.png?size=16"
@@ -280,7 +289,8 @@ def list_category(category, format=""):
     song = None
    if category == "albums":
     try:
-     art_relpath = os.path.dirname(library.get_album(*i[2])[0][1].relpath)
+     album = library.albums(artist=i[2][0], album=i[2][1])
+     art_relpath = os.path.dirname(album[0].relpath)
      art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf-8"))
      icon = art_url + "/album.png?size=16"
     except (IndexError, TypeError):
@@ -311,13 +321,13 @@ def list_category_xspf(category):
 @route("/scrobble/:id")
 def scrobble(id):
  timestamp = int(request.GET.get("timestamp", round(time.time())))
- song = library.get_song(int(id))[1]
+ song = library.songs[int(id)]
  lfm = last_fm_login()
  if song.artist and song.title:
   optional = {}
   if song.album:
    optional["album"] = song.album
-  duration = request.GET.get("duration", None)
+  duration = song.length or request.GET.get("duration", None)
   if duration != None:
    optional["duration"] = int(duration)
   lfm.scrobble(song.artist, song.title, timestamp, **optional)
@@ -344,14 +354,14 @@ def to_unicode(s, encoding="utf8"):
 
 @route("/update-now-playing/:id")
 def update_now_playing(id):
- song = library.get_song(int(id))[1]
+ song = library.songs[int(id)]
  lfm = last_fm_login()
  if song.artist and song.title:
   optional = {}
   if song.album:
    optional["album"] = song.album
-  duration = request.GET.get("duration", "")
-  if duration != "":
+  duration = song.length or request.GET.get("duration", None)
+  if duration != None:
    optional["duration"] = int(duration)
   lfm.update_now_playing(song.artist, song.title, **optional)
 
