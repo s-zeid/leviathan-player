@@ -1243,16 +1243,16 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
   self.playlists.scan()
  
  def abspath(self, child, parent, raise_error=True):
-  child = to_unicode(child).encode("utf8")
-  parent = to_unicode(parent).encode("utf8")
+  child = to_unicode(child).encode(getfilesystemencoding())
+  parent = to_unicode(parent).encode(getfilesystemencoding())
   self.check_path(child, parent, raise_error)
   if not os.path.realpath(child).startswith(os.path.realpath(parent)):
    child = os.path.join(parent, child)
-  return to_unicode(os.path.abspath(child), "utf8")
+  return to_unicode(os.path.abspath(child), getfilesystemencoding())
  
  def check_path(self, child, parent, raise_error=False):
-  child = to_unicode(child).encode("utf8")
-  parent = to_unicode(parent).encode("utf8")
+  child = to_unicode(child).encode(getfilesystemencoding())
+  parent = to_unicode(parent).encode(getfilesystemencoding())
   valid = os.path.realpath(child).startswith(os.path.realpath(parent))
   if not valid:
    child = os.path.join(parent, child)
@@ -1305,11 +1305,11 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
   return r
  
  def relpath(self, child, parent, raise_error=True):
-  child = to_unicode(child).encode("utf8")
-  parent = to_unicode(parent).encode("utf8")
+  child = to_unicode(child).encode(getfilesystemencoding())
+  parent = to_unicode(parent).encode(getfilesystemencoding())
   self.check_path(child, parent, raise_error)
   ret = os.path.relpath(os.path.realpath(child), os.path.realpath(parent))
-  return to_unicode(ret, "utf8")
+  return to_unicode(ret, getfilesystemencoding())
  
  def sanitize(self, directory="", quiet=False, debug=False, level=0):
   if directory == "":
@@ -1455,6 +1455,12 @@ def custom_splitext(path, match=None):
   return split
  else:
   return (path, "")
+
+def getfilesystemencoding():
+ enc = sys.getfilesystemencoding()
+ if enc == "ascii":
+  return "utf8"
+ return enc
 
 def get_format(ext):
  ext = ext.lower().lstrip(".")
