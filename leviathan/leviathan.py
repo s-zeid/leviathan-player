@@ -29,6 +29,7 @@
 # shall not be used in advertising or otherwise to promote the sale, use or
 # other dealings in this Software without prior written authorization.
 
+import codecs
 import collections
 import ConfigParser as configparser
 import os
@@ -1457,9 +1458,13 @@ def custom_splitext(path, match=None):
   return (path, "")
 
 def getfilesystemencoding():
+ """Returns the file system encoding, but substitutes UTF-8 for ASCII."""
  enc = sys.getfilesystemencoding()
- if enc == "ascii":
-  return "utf8"
+ try:
+  if codecs.lookup(enc).name.lower() == "ascii":
+   return "utf-8"
+ except LookupError:
+  return "utf-8"
  return enc
 
 def get_format(ext):
