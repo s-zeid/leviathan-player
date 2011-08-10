@@ -271,7 +271,7 @@ def list_category(category, format=""):
    name = full_name = to_unicode(i[1]) if i[1] else "(Unknown)"
    if category in ("artist", "album", "playlist", "queue", "song", "songs"):
     full_name = u"%s — %s" % (i[1] or "(Unknown)",
-                              (info.artist or "(Unknown)") if i else "")
+                              (info[2].artist or "(Unknown)") if i else "")
     if category != "album":
      name = full_name
    icon = ""
