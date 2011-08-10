@@ -67,6 +67,7 @@ artwork_cache_dir = os.path.join(config.root, "artwork-cache")
 generic_artwork_cache_dir = os.path.join(artwork_cache_dir, "generic")
 library_artwork_cache_dir = os.path.join(artwork_cache_dir, "library")
 
+FSENC              = leviathan.getfilesystemencoding()
 LAST_FM_API_KEY    = "564bfe2575a418e90e6977cfc71d7fbe"
 LAST_FM_API_SECRET = "164dd907b69d8b50d047ba66d233249e"
 SETTINGS_FILE      = "webleviathan.yaml"
@@ -106,15 +107,15 @@ def artwork(relpath=None, mode="album"):
 
 def cache_artwork(image_path, side_length, generic=False):
  if not generic:
-  if not image_path.startswith(library.music_path.encode("utf8")):
+  if not image_path.startswith(library.music_path.encode(FSENC)):
    raise ValueError("image_path must be within the library root")
  cache_dir = generic_artwork_cache_dir if generic else library_artwork_cache_dir
- cache_dir = cache_dir.encode("utf8")
+ cache_dir = cache_dir.encode(FSENC)
  if generic:
   save_path = os.path.join(cache_dir, "artwork.%d.png" % side_length)
  else:
   relpath = os.path.dirname(os.path.relpath(image_path,
-                                            library.music_path.encode("utf8")))
+                                            library.music_path.encode(FSENC)))
   save_path = os.path.join(cache_dir, relpath, "artwork.%d.png" % side_length)
  if not os.path.isdir(os.path.realpath(os.path.dirname(save_path))):
   os.makedirs(os.path.realpath(os.path.dirname(save_path)),
@@ -144,8 +145,8 @@ def get_album_art_relpath(relpath, side_length=0):
  image_path = None
  cache_filename = "artwork.%d.png" % side_length
  if relpath:
-  for d in ((library_artwork_cache_dir.encode("utf8"), True),
-            (library.music_path.encode("utf8"), False)):
+  for d in ((library_artwork_cache_dir.encode(FSENC), True),
+            (library.music_path.encode(FSENC), False)):
    path = os.path.join(d[0], relpath)
    for p in (path, os.path.dirname(path)):
     p = os.path.join(p, path)
@@ -172,8 +173,8 @@ def get_artist_art_relpath(relpath, side_length=0):
  image_path = None
  cache_filename = "artwork.%d.png" % side_length
  if relpath:
-  for d in ((library_artwork_cache_dir.encode("utf8"), True),
-            (library.music_path.encode("utf8"), False)):
+  for d in ((library_artwork_cache_dir.encode(FSENC), True),
+            (library.music_path.encode(FSENC), False)):
    p = os.path.join(d[0], [i for i in os.path.split(relpath) if i][0])
    if os.path.isdir(os.path.realpath(p)):
     l = sorted(os.listdir(p))
@@ -242,7 +243,7 @@ def library(relpath):
   relpath = os.path.splitext(relpath)[0] + ".mp3"
  basename = os.path.basename(relpath)
  directory = os.path.dirname(os.path.join(library.music_path, relpath))
- return static_file(basename.encode("utf8"), directory.encode("utf8"))
+ return static_file(basename.encode(FSENC), directory.encode(FSENC))
 
 def list_category(category, format=""):
  artist, id = request.GET.get("artist"), request.GET.get("id")
@@ -287,7 +288,7 @@ def list_category(category, format=""):
     try:
      album = library.albums(artist=i[2][0], album=i[2][1])
      art_relpath = os.path.dirname(album.songs[0].relpath)
-     art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf-8"))
+     art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf8"))
      icon = art_url + "/album.png?size=16"
     except (IndexError, TypeError):
      icon = root_url() + "/generic-artwork/album.png?size=16"
