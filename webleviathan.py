@@ -200,27 +200,28 @@ def get_list(category, id=None, queue=None):
   l = [library.songs[int(i)] for i in queue if i != ""]
   return [(i.id, i.title, i) for i in l]
  elif category == "artist":
-  return [(i.id, i.title, i) for i in library.artists[id]]
+  return [(i.id, i.title, i) for i in library.artists[id].songs]
  elif category == "artists":
   # Format: (name, name, None)
   return [(i.name, i.name, None) for i in library.artists]
  elif category == "album":
-  return [(i.id, i.title, i) for i in library.albums(artist=id[0],album=id[1])]
+  album = library.albums(artist=id[0], album=id[1])
+  return [(i.id, i.title, i) for i in album.songs]
  elif category == "albums":
   # Format: ("artistname_albumname", display name, tuple(artist, name))
   return [("%s_%s" % (i.artist, i.name),
-           i.album if id
-            else "%s - %s" % (i.album or "(Unknown)", i.artist or "(Unknown)"),
+           i.name if id
+            else "%s - %s" % (i.name or "(Unknown)", i.artist or "(Unknown)"),
            (i.artist, i.name)) for i in library.albums(artist=id)]
  elif category == "playlist":
-  return [(i, i.title, i) for i in library.playlists[int(id)]]
+  return [(i.id, i.title, i) for i in library.playlists[int(id)].songs]
  elif category == "playlists":
   # Format: (id, name, None)
   return [(i.id, i.name, None) for i in library.playlists]
  elif category == "song":
-  return [(i, i.title, i) for i in [library.songs[int(id)]]]
+  return [(i.id, i.title, i) for i in [library.songs[int(id)]]]
  elif category == "songs":
-  return [(i, i.title, i) for i in library.songs]
+  return [(i.id, i.title, i) for i in library.songs]
 
 @route("/")
 @view("index")
@@ -236,7 +237,7 @@ def last_fm_login():
 
 @route("/library/:relpath#.*#")
 def library(relpath):
- relpath = relpath
+ relpath = to_unicode(relpath)
  if not relpath.lower().endswith(".mp3"):
   relpath = os.path.splitext(relpath)[0] + ".mp3"
  basename = os.path.basename(relpath)
@@ -244,8 +245,7 @@ def library(relpath):
   library.check_path(relpath, library.music_path)
  except ValueError:
   raise HTTPError(404)
- directory = os.path.dirname(os.path.join(library.music_path.encode("utf8"),
-                                          relpath))
+ directory = os.path.dirname(os.path.join(library.music_path, relpath))
  return static_file(basename, directory)
 
 def list_category(category, format=""):
@@ -271,7 +271,7 @@ def list_category(category, format=""):
    name = full_name = to_unicode(i[1]) if i[1] else "(Unknown)"
    if category in ("artist", "album", "playlist", "queue", "song", "songs"):
     full_name = u"%s — %s" % (i[1] or "(Unknown)",
-                              (info[2].artist or "(Unknown)") if i else "")
+                              (info.artist or "(Unknown)") if i else "")
     if category != "album":
      name = full_name
    icon = ""
@@ -290,7 +290,7 @@ def list_category(category, format=""):
    if category == "albums":
     try:
      album = library.albums(artist=i[2][0], album=i[2][1])
-     art_relpath = os.path.dirname(album[0].relpath)
+     art_relpath = os.path.dirname(album.songs[0].relpath)
      art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf-8"))
      icon = art_url + "/album.png?size=16"
     except (IndexError, TypeError):

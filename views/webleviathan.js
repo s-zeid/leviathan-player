@@ -49,7 +49,8 @@ function add_to_queue(el) {
  var category = el.attr("data-category");
  if (category == "album" || category == "playlist" || category == "songs") {
   queue_push_one(el);
- } else if (el.children(".children").children("ul").length == 1) {
+ } else if (el.children(".children").children("ul").length == 1 &&
+            category != "artists") {
   queue_push_each(el.children(".children").children("ul").first());
  } else {
   var url = get_list_url(el, "add", "json");

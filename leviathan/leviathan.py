@@ -40,6 +40,7 @@ import string
 import subprocess
 import sys
 import traceback
+import types
 import UserDict
 
 import mutagen
@@ -91,19 +92,27 @@ class Albums(object):
   return len(self.library.query(self.queries["all_albums_and_artists"]))
  
  def __call__(self, artist=None, album=None):
-  if album:
-   if not artist:
+  if not isinstance(artist, (basestring, types.NoneType)):
+   raise TypeError("artist must be either a string or None")
+  if not isinstance(album, (basestring, types.NoneType)):
+   raise TypeError("album must be either a string or None")
+  artist = to_unicode(artist) if artist != None else None
+  album = to_unicode(album) if album != None else None
+  if album != None:
+   if artist == None:
     raise TypeError("artist cannot be None when album is not None")
-   return self[(artist, album)]
-  elif artist:
+   return self[(album, artist)]
+  elif artist != None:
    return self[artist]
   return self
  
  def __contains__(self, item):
   if isinstance(item, basestring):
+   item = to_unicode(item)
    q = self.queries["albums_and_artist_from_artist"]
    r = self.library.query(q, artist=item)
   elif isinstance(item, (list, tuple)):
+   item = [to_unicode(i) for i in item]
    q = self.queries["album_and_artist_from_both"]
    r = self.library.query(q, artist=item[1], album=item[0])
   else:
@@ -112,6 +121,7 @@ class Albums(object):
  
  def __getitem__(self, item):
   if isinstance(item, basestring):
+   item = to_unicode(item)
    q = self.queries["albums_and_artist_from_artist"]
    r = self.library.query(q, artist=item)
    if not len(r):
@@ -120,6 +130,7 @@ class Albums(object):
   elif isinstance(item, (int, long)):
    return self[self.names[item]]
   elif isinstance(item, (list, tuple)):
+   item = [to_unicode(i) for i in item]
    q = self.queries["song_ids_from_album_and_artist"]
    r = self.library.query(q, artist=item[1], album=item[0])
    if not len(r):
@@ -163,12 +174,14 @@ class Artists(object):
  def __len__(self):
   return len(self.library.query(self.queries["all_artists"]))
  
- def __contains__(self, artist_name):
-  r = self.library.query(self.queries["artist_from_artist"], artist=artist)
+ def __contains__(self, item):
+  item = to_unicode(item)
+  r = self.library.query(self.queries["artist_from_artist"], artist=item)
   return bool(len(r))
  
  def __getitem__(self, item):
   if isinstance(item, basestring):
+   item = to_unicode(item)
    r = self.library.query(self.queries["song_ids_from_artist"], artist=item)
    if not len(r):
     raise IndexError("no artist named '%s'" % item)
@@ -1181,7 +1194,7 @@ class Library(object):
        my_dirname(relpath) not in settings["blacklist"]):
     if tag + "sort" in mg:
      return to_unicode(mg[tag + "sort"][0]).lower()
-  return sort_value(default_value)
+  return to_unicode(sort_value(default_value))
  
  def _setup_db(self):
   new = False if os.path.exists(os.path.realpath(self.database_path)) else True
