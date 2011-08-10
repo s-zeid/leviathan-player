@@ -241,12 +241,8 @@ def library(relpath):
  if not relpath.lower().endswith(".mp3"):
   relpath = os.path.splitext(relpath)[0] + ".mp3"
  basename = os.path.basename(relpath)
- try:
-  library.check_path(relpath, library.music_path)
- except ValueError:
-  raise HTTPError(404)
  directory = os.path.dirname(os.path.join(library.music_path, relpath))
- return static_file(basename, directory)
+ return static_file(basename.encode("utf8"), directory.encode("utf8"))
 
 def list_category(category, format=""):
  artist, id = request.GET.get("artist"), request.GET.get("id")

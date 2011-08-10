@@ -272,7 +272,7 @@ class Playlist(UserDict.DictMixin, object):
  
  @classmethod
  def _add(cls, conn, c, library, name, quick=False, return_id=False):
-  relpath = name + library.playlist_formats.default.ext
+  relpath = to_unicode(name + library.playlist_formats.default.ext)
   library.check_path(relpath, library.playlists_path)
   path = library.abspath(relpath, library.playlists_path)
   c.fetchall()
@@ -409,7 +409,7 @@ class Playlist(UserDict.DictMixin, object):
   old_name = self.name
   old_paths = self.paths
   self.library.query(self.queries["rename_from_id"], name=new_name, id=self.id)
-  self.__data["name"] = new_name
+  self.__data["name"] = to_unicode(new_name)
   new_paths = self.paths
   for dirname in self.library.playlist_formats:
    shutil.move(old_paths[dirname], new_paths[dirname])
@@ -1243,12 +1243,16 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
   self.playlists.scan()
  
  def abspath(self, child, parent, raise_error=True):
+  child = to_unicode(child).encode("utf8")
+  parent = to_unicode(parent).encode("utf8")
   self.check_path(child, parent, raise_error)
   if not os.path.realpath(child).startswith(os.path.realpath(parent)):
    child = os.path.join(parent, child)
-  return os.path.abspath(child)
+  return to_unicode(os.path.abspath(child), "utf8")
  
  def check_path(self, child, parent, raise_error=False):
+  child = to_unicode(child).encode("utf8")
+  parent = to_unicode(parent).encode("utf8")
   valid = os.path.realpath(child).startswith(os.path.realpath(parent))
   if not valid:
    child = os.path.join(parent, child)
@@ -1301,8 +1305,11 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
   return r
  
  def relpath(self, child, parent, raise_error=True):
+  child = to_unicode(child).encode("utf8")
+  parent = to_unicode(parent).encode("utf8")
   self.check_path(child, parent, raise_error)
-  return os.path.relpath(os.path.realpath(child), os.path.realpath(parent))
+  ret = os.path.relpath(os.path.realpath(child), os.path.realpath(parent))
+  return to_unicode(ret, "utf8")
  
  def sanitize(self, directory="", quiet=False, debug=False, level=0):
   if directory == "":
