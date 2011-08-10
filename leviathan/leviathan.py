@@ -257,6 +257,43 @@ class Playlist(UserDict.DictMixin, object):
  def keys(self):
   return self.__data.keys()
  
+ @classmethod
+ def _add(cls, conn, c, library, name, quick=False, return_id=False):
+  relpath = name + library.playlist_formats.default.ext
+  library.check_path(relpath, library.playlists_path)
+  path = library.abspath(relpath, library.playlists_path)
+  c.fetchall()
+  c.execute(cls.queries["id_from_name"], dict(name=name))
+  try:
+   id_ = c.fetchall()[0][0]
+  except IndexError:
+   c.execute(cls.queries["add"], dict(name=name))
+   conn.commit()
+   c.execute(cls.queries["id_from_name"], dict(name=name))
+   try:
+    id_ = c.fetchall()[0][0]
+   except IndexError:
+    raise Exception("the playlist '%s' could not be added to the database"
+                     % name)
+  if os.path.exists(path):
+   songs = PlaylistFormat(library).load(path, True)
+   for song_path in songs:
+    song_relpath = library.relpath(song_path, library.music_path)
+    c.execute(Song.queries["id_from_relpath"], dict(relpath=song_relpath))
+    song_id = (c.fetchall() or [[None]])[0][0]
+    if not song_id or not quick:
+     song_id=Song._add(conn, c, library, song_path, quick=True, return_id=True)
+    c.execute(cls.queries["entry_id"], dict(song=song_id, playlist=id_))
+    if not len(c.fetchall()):
+     c.execute(cls.queries["entry_add"], dict(song=song_id, playlist=id_))
+    conn.commit()
+  if not quick or return_id:
+   if not quick and return_id:
+    return id_
+   ret = cls(library, id_)
+   ret.save()
+   return ret
+ 
  @property
  def id(self): return self["id"]
  @property
@@ -334,22 +371,6 @@ class Playlist(UserDict.DictMixin, object):
    raise ValueError("the song %s does not exist" % song.relpath)
   q = self.queries["entry_id"]
   return bool(len(self.library.query(q, song=song.id, playlist=self.id)))
- 
- def _load(self):
-  if not os.path.exists(self.path):
-   if self.exists: self.save()
-   return
-  songs = PlaylistFormat(self.library).load(self.path).songs
-  conn, c = self.library._setup_db()
-  for song in songs:
-   song = self.library.songs.add(song.relpath)
-   c.execute(self.queries["entry_id"], dict(song=song.id, playlist=self.id))
-   if not len(c.fetchall()):
-    c.execute(self.queries["entry_add"], dict(song=song.id, playlist=self.id))
-   conn.commit()
-  conn.commit()
-  c.close()
-  self.save()
  
  def remove(self):
   if not self.exists:
@@ -466,13 +487,11 @@ class Playlists(object):
   for pls in playlists:
    pls.save()
  
- def add(self, name):
-  if name in self:
-   return self[name]
-  self.library.query(Playlist.queries["add"], name=name)
-  pls = Playlist(self.library, name)
-  pls._load()
-  return pls
+ def add(self, name, quick=False, return_id=False):
+  conn, c = self.library._setup_db()
+  ret = Playlist._add(conn, c, self.library, name, quick, return_id)
+  c.close()
+  return ret
  
  def all(self):
   q = self.queries["all_playlists"]
@@ -487,11 +506,14 @@ class Playlists(object):
    return None
  
  def scan(self):
+  conn, c = self.library._setup_db()
   for i in os.listdir(self.library.playlists_path):
    name = custom_splitext(i, self.library.playlist_formats.default.ext)[0]
    if name not in self.library.db_ignore_playlists:
-    path = os.path.join(self.library.playlists_path, i)
-    self.add(name)
+    Playlist._add(conn, c, self.library, name, True)
+  conn.commit()
+  c.close()
+  self.save()
  
  def save(self):
   """Saves all playlists to disk."""
@@ -518,8 +540,11 @@ class PlaylistFormat(object):
   ext = "." + filename.rsplit(".", 1)[1].lower()
   if ext in M3UPlaylist.extensions:
    with open(filename, "rb") as f:
-    if f.next() == "#EXTM3U":
-     return ExtendedM3UPlaylist
+    try:
+     if f.next() == "#EXTM3U":
+      return ExtendedM3UPlaylist
+    except StopIteration:
+     pass
     return M3UPlaylist
   if ext in PLSPlaylist.extensions:
    return PLSPlaylist
@@ -530,16 +555,16 @@ class PlaylistFormat(object):
    d["title"] = os.path.basename(song.relpath.rsplit(".", 1)[0])[0]
   title = string.Template(fmt).substitute(d)
   return title
- def load(self, filename):
+ def load(self, filename, quick=False):
   # Subclasses should not inherit this method's behavior
   if type(self) != PlaylistFormat:
    raise NotImplementedError()
   fmt = self.detect(filename)
   if not fmt:
    raise ValueError(to_unicode(filename) + " is not in a supported format")
-  ret = fmt(self.library)
-  ret.load(filename)
-  return ret
+  fmt = fmt(self.library)
+  load_result = fmt.load(filename, quick)
+  return load_result if quick else fmt
  def save(self, filename=None, title_fmt="$title", path_attr="path"):
   raise NotImplementedError()
 
@@ -547,18 +572,25 @@ class M3UPlaylist(PlaylistFormat):
  extensions = (".m3u", ".m3u8")
  name = "m3u"
  
- def load(self, filename):
+ def load(self, filename, quick=False):
   with open(filename, "rb") as f:
-   data = [i for i in f.read().decode("utf8").splitlines()
-           if i and not i.startswith("#")]
+   paths = []
+   for p in f.read().decode("utf8").splitlines():
+    if p and not p.startswith("#"):
+     try:
+      p = self.library.abspath(p, self.library.music_path)
+     except ValueError:
+      continue
+     if not p:
+      continue
+     paths.append(p)
+   if quick:
+    return paths
   self.songs = []
-  for p in data:
+  for p in paths:
+   p = self.library.relpath(p, self.library.music_path, False)
    if p in self.library.songs:
     self.songs.append(self.library.songs[p])
-   elif self.library.check_path(p, self.library.music_path, False):
-    p = self.library.relpath(p, self.library.music_path)
-    if p in self.library.songs:
-     self.songs.append(self.library.songs[p])
  
  def save(self, filename=None, title_fmt="unused", path_attr="path"):
   out = "\n".join([getattr(i, path_attr) for i in self.songs])
@@ -593,16 +625,25 @@ class PLSPlaylist(PlaylistFormat):
   cp = configparser.SafeConfigParser()
   with open(filename, "rb") as f:
    cp.readfp(f)
-  self.songs = []
+  paths = []
   length = int(cp.get("playlist", "NumberOfEntries"))
   for i in range(1, length + 1):
-   p = cp.get("playlist", "File" + str(i))
+   if p:
+    p = cp.get("playlist", "File" + str(i))
+    try:
+     p = self.library.abspath(i, self.library.music_path)
+    except ValueError:
+     continue
+    if not p:
+     continue
+    paths.append(p)
+  self.songs = []
+  if quick:
+   return paths
+  for p in paths:
+   p = self.library.relpath(p, self.library.music_path, False)
    if p in self.library.songs:
     self.songs.append(self.library.songs[p])
-   elif self.library.check_path(p, self.library.music_path, False):
-    p = self.library.relpath(p, self.library.music_path)
-    if p in self.library.songs:
-     self.songs.append(self.library.songs[p])
  
  def save(self, filename=None, title_fmt="$title", path_attr="path"):
   out = ["[playlist]", ""]
@@ -719,6 +760,32 @@ class Song(UserDict.DictMixin, object):
  
  def keys(self):
   return self.__data.keys()
+ 
+ @classmethod
+ def _add(cls, conn, c, library, relpath, quick=False, return_id=False):
+  library.check_path(relpath, library.music_path)
+  info = library._get_song_info(relpath)
+  if info:
+   c.fetchall()
+   c.execute(cls.queries["id_from_relpath"], dict(relpath=relpath))
+   exists = len(c.fetchall())
+   qname = "update_from_relpath" if exists else "add"
+   c.execute(cls.queries[qname], dict(
+    relpath=info[0], title=info[1], sort_title=info[2], artist=info[3],
+    sort_artist=info[4], album=info[5], sort_album=info[6], length=info[7]
+   ))
+   conn.commit()
+   if not quick or return_id:
+    c.fetchall()
+    c.execute(cls.queries["id_from_relpath"], dict(relpath=relpath))
+    try:
+     id_ = c.fetchall()[0][0]
+    except IndexError:
+     raise Exception("the song at '%s could not be added to the database'"
+                      % relpath)
+    if not quick and return_id:
+     return id_
+    return cls(library, *([id_] + info))
  
  def _update_playlists(self, playlists=None):
   if playlists == None: playlists = self.playlists
@@ -883,15 +950,11 @@ unless you know what you're doing.
   # sqlite3.Cursor.fetchall)
   return [Song(self.library, *i) for i in result]
  
- def add(self, relpath):
-  if relpath in self:
-   song = self[relpath]
-   song.update()
-   return song
-  song = Song(self.library, relpath)
-  self.library.query(Song.queries["add"], **song)
-  song._Song__data["id"] = song._Song__get_id()
-  return song
+ def add(self, relpath, quick=False, return_id=False):
+  conn, c = self.library._setup_db()
+  ret = Song._add(conn, c, self.library, relpath, quick, return_id)
+  c.close()
+  return ret
  
  def all(self):
   return self._parse_songs(self.library.query(self.queries["all_songs"]))
@@ -905,11 +968,13 @@ unless you know what you're doing.
    return None
  
  def scan(self):
+  conn, c = self.library._setup_db()
   for root, dirs, files in os.walk(self.library.music_path, followlinks=True):
-   for i in files:
-    path = os.path.join(root, i)
-    if mutagen.File(path, easy=True):
-     self.add(self.library.relpath(path, self.library.music_path))
+   dirs.sort()
+   for i in sorted(files):
+    relpath = self.library.relpath(os.path.join(root,i),self.library.music_path)
+    Song._add(conn, c, self.library, relpath, True)
+  c.close()
  
  def search(self, key, value, exact=True, sort="sort_title"):
   qname = "id_from_*"
@@ -994,9 +1059,9 @@ class Library(object):
    default = v.get("default", False)
    if default:
     if self.playlist_formats.default:
-     default = False
-    else:
-     self.playlist_formats.default = k
+     raise ValueError("two or more default playlist paths are specified in"
+                      " the config file")
+    self.playlist_formats.default = k
    substitutions = v.get("substitutions", []) or []
    substitutions = [[to_unicode(j) for j in i] for i in substitutions]
    for i in substitutions:
@@ -1062,6 +1127,7 @@ class Library(object):
   self.artists = Artists(self)
   self.songs = Songs(self)
   self.playlists = Playlists(self)
+ 
  def _get_song_info(self, relpath):
   title, ext = os.path.splitext(os.path.basename(relpath))
   title = [title]
@@ -1163,6 +1229,12 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
  def scan(self):
   self.songs.scan()
   self.playlists.scan()
+ 
+ def abspath(self, child, parent, raise_error=True):
+  self.check_path(child, parent, raise_error)
+  if not os.path.realpath(child).startswith(os.path.realpath(parent)):
+   child = os.path.join(parent, child)
+  return os.path.abspath(child)
  
  def check_path(self, child, parent, raise_error=False):
   valid = os.path.realpath(child).startswith(os.path.realpath(parent))
