@@ -1012,12 +1012,11 @@ unless you know what you're doing.
   extension_whitelist = [i for i in EXTENSIONS.keys() if i != "mp3"]
   for i in self:
    if i.relpath.rsplit(".", 1)[1] in extension_whitelist and \
-      not os.path.exists(i.relpath.rsplit(".", 1)[0] + ".mp3"):
-    nomp3.append(i.relpath)
+      not os.path.exists(i.path.rsplit(".", 1)[0] + ".mp3"):
+    nomp3.append(i.path)
   if len(nomp3) > 0:
    nomp3.sort()
    for in_file in nomp3:
-    in_file = os.path.join(self.library.music_path, in_file)
     out_file = in_file.rsplit(".", 1)[0] + ".mp3"
     convert_to_mp3(in_file, out_file, self.library.ffmpeg, self.library.lame,
                    self.library.constant_bitrate, self.library.vbr_quality)
