@@ -198,7 +198,7 @@ function hide_large_artwork() {
 }
 
 function init_player() {
- var player = jwplayer("player").setup({
+ jwplayer("player").setup({
   flashplayer: "{{root_url}}/static/player.swf",
   width: 0, height: 0,
   autostart: false,
@@ -234,15 +234,15 @@ function init_player() {
     $("#play_pause .pause").show();
     set_icon_url(el, "{{root_url}}/images/play.png");
    },
+   onReady: function() {
+    update_volume_bar(get_player().getVolume());
+    scrubber_volume.enable();
+   },
    onVolume: function(e) {
-    update_volume_icon();
-    scrubber_volume.moveToPercent(e.volume);
+    update_volume_bar(e.volume);
    }
   }
  });
- scrubber_volume.disable();
- player.setVolume(100);
- scrubber_volume.enable();
 }
 
 function init_ui() {
@@ -278,8 +278,9 @@ function init_ui() {
  $("#queue > div > .header .clear").click(function() { clear_queue() });
  $("#queue > div > div.list").scrollTop(0);
  $("#artists, #albums, #playlists, #songs").each(function() {
-  $(this).children(".table").children(".row").children("span")
-  .each(function() { $(this).click(row_clicked); });
+  $(this).children(".table").children(".row").children("span").click(
+   row_clicked
+  );
  });
  $("#songs .table .row .add").unbind("click").click(add_link_clicked);
  reset_seek_bar();
@@ -803,6 +804,11 @@ function update_seek_bar(position, duration) {
  $("#time_elapsed").text(time_text(position));
  if (duration != null)
   $("#song_length").text(time_text(duration));
+}
+
+function update_volume_bar(percent) {
+ update_volume_icon();
+ scrubber_volume.moveToPercent(percent);
 }
 
 function update_volume_icon(muted) {

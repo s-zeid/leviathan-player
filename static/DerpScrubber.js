@@ -162,8 +162,6 @@ var DerpScrubber = (function() {
    var outer = this.outer, bar = this.bar, root = this.root, center;
    var handle = this.handle, container = this.container, handleMargin;
    var handleOffset;
-   this.highlight.css("display", "block");
-   this.handleContainer.css("display", "block");
    if (this.orientation == "horizontal") {
     this.highlight.css("width", "0%");
     this.highlight.css("right", "auto");
@@ -208,6 +206,7 @@ var DerpScrubber = (function() {
     bar.css("right", Math.max(barMarginX, 0) + "px");
    }
    if (handle) {
+    this.handleContainer.css("display", "block");
     if (this.orientation == "horizontal") {
      if (!this.userHandle) {
       handle.css("width", this.handleContainer.height() / 2);
@@ -246,10 +245,10 @@ var DerpScrubber = (function() {
      handleContainer.css("bottom", String(handleOffset) + "px");
     }
    }
-   if (this.enabled) {
+   if (this.enabled)
     this.handleContainer.css("display", (this.clickable) ? "block" : "none");
-    this.highlight.css("display", "block");
-   }
+   else
+    this.handleContainer.css("display", "none");
    return this;
   },
   
@@ -535,7 +534,7 @@ var DerpScrubber = (function() {
   setEnabled: function(enabled) {
    this.enabled = Boolean(enabled);
    if (enabled) {
-    if (this.clickable) this.handleContainer.css("display", "block");
+    this.handleContainer.css("display", (this.clickable) ? "block" : "none");
     this.availableArea.css("display", "block");
     this.highlight.css("display", "block");
     this.onMove();
@@ -543,8 +542,8 @@ var DerpScrubber = (function() {
     this.root.removeClass("DerpScrubber_disabled");
     this.root.addClass("DerpScrubber_enabled");
    } else {
-    this.availableArea.css("display", "none");
     this.highlight.css("display", "none");
+    this.availableArea.css("display", "none");
     this.handleContainer.css("display", "none");
     this.root.removeClass("DerpScrubber_enabled");
     this.root.addClass("DerpScrubber_disabled");
