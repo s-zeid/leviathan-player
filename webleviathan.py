@@ -280,7 +280,8 @@ def list_category(category, format=""):
     art_relpath = os.path.dirname(relpath)
     art_url = root_url() + "/artwork/" + quote(art_relpath.encode("utf8"))
     song = dict(relpath=i[2].relpath, title=i[2].title, artist=i[2].artist,
-                album=i[2].album, url=url, art_directory=art_url)
+                album=i[2].album, length=i[2].length, url=url,
+                art_directory=art_url)
     icon = art_url + "/album.png?size=16"
    else:
     song = None

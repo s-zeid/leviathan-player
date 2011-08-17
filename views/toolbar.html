@@ -27,6 +27,7 @@
 %# other dealings in this Software without prior written authorization.
 %#
     <div id="toolbar">
+     <div id="player"></div>
      <div id="artwork">
       <div>
        <div>
@@ -46,31 +47,44 @@
       <div id="control_bar">
        <div id="previous" class="button">
         <img class="previous" src="{{root_url}}/images/previous.png" alt="" title="Previous song" />
-        <img class="no_previous" src="{{root_url}}/images/no-previous.png" alt="" title="Previous song" />
+        <img class="no_previous default disabled" src="{{root_url}}/images/no-previous.png" alt="" title="Previous song" />
        </div>
        <div id="play_pause" class="button">
         <img class="play" src="{{root_url}}/images/play.png" alt="" title="Play" />
         <img class="pause" src="{{root_url}}/images/pause.png" alt="" title="Pause" />
-        <img class="no_play" src="{{root_url}}/images/no-play.png" alt="" title="Play" />
+        <img class="no_play default disabled" src="{{root_url}}/images/no-play.png" alt="" title="Play" />
        </div>
        <div id="next" class="button">
         <img class="next" src="{{root_url}}/images/next.png" alt="" title="Next song" />
-        <img class="no_next" src="{{root_url}}/images/no-next.png" alt="" title="Next song" />
+        <img class="no_next default disabled" src="{{root_url}}/images/no-next.png" alt="" title="Next song" />
        </div>
-       <div id="player_container">
-        <div id="player"></div>
+       <div id="scrubbers">
+        <div id="seek_bar">
+         <div id="time_elapsed"></div>
+         <div id="seek_scrubber"></div>
+         <div id="song_length"></div>
+        </div>
+        <div id="volume_bar">
+         <div id="volume_button" class="button">
+          <img class="volume_max default" src="{{root_url}}/images/volume-max.png" alt="" title="Mute" />
+          <img class="volume_med" src="{{root_url}}/images/volume-med.png" alt="" title="Mute" />
+          <img class="volume_min" src="{{root_url}}/images/volume-min.png" alt="" title="Mute" />
+          <img class="volume_muted" src="{{root_url}}/images/volume-muted.png" alt="" title="Unmute" />
+         </div>
+         <div id="volume_scrubber"></div>
+        </div>
        </div>
        <div id="repeat" class="button">
         <img class="repeat" src="{{root_url}}/images/repeat.png" alt="" title="Turn repeat off" />
-        <img class="no_repeat" src="{{root_url}}/images/no-repeat.png" alt="" title="Turn repeat on" />
+        <img class="no_repeat default" src="{{root_url}}/images/no-repeat.png" alt="" title="Turn repeat on" />
        </div>
        <div id="shuffle" class="button">
         <img class="shuffle" src="{{root_url}}/images/shuffle.png" alt="" title="Turn shuffle off" />
-        <img class="no_shuffle" src="{{root_url}}/images/no-shuffle.png" alt="" title="Turn shuffle on" />
+        <img class="no_shuffle default" src="{{root_url}}/images/no-shuffle.png" alt="" title="Turn shuffle on" />
        </div>
        <div id="scrobbling" class="button">
         <img class="scrobbling" src="{{root_url}}/images/scrobbling.png" alt="" title="Turn Last.fm scrobbling off" />
-        <img class="no_scrobbling" src="{{root_url}}/images/no-scrobbling.png" alt="" title="Turn Last.fm scrobbling on" />
+        <img class="no_scrobbling default" src="{{root_url}}/images/no-scrobbling.png" alt="" title="Turn Last.fm scrobbling on" />
        </div>
       </div>
      </div>

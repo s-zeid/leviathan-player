@@ -32,19 +32,19 @@ page_text:          "#4C4C4C"
 page_link:          ["#A00", "#800"]
 toolbar_bg:         "#555"
 toolbar_text:       "#FFF"
+toolbar_border:     "#444"
 toolbar_art_bg:     "#333"
 toolbar_art_border: "#444"
-                    # player_*:  CSS hex format with no # sign and 6 digits
-                    # See JW Player documentation for details
-player_back:        "333333"
-player_front:       "FFFFFF"
-player_light:       "FFFFFF"
-player_screen:      "000000"
+                    # scrubber: highlight, available bg, unavailable bg
+scrubber:           ["#FFF", "#999", "#777"]
+                    # scrubber_handle: background, border
+scrubber_handle:    ["#FFF", "#555"]
 list_area_bg:       "#F2F1F0"
 list_area_text:     "#4C4C4C"
 list_bg:            "#CCC"
 list_border:        "#555"
-list_header:        "#FFF"
+list_header_bg:     "#555"
+list_header_text:   "#FFF"
                     # list_item_bg:  one per level; top level first
 list_item_bg:       ["#EEEEEE", "#E7E7E7", "#DDDDDD", "#D0D0D0"]
                     # list_item_border:  one per level; top level first
