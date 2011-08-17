@@ -102,7 +102,8 @@ img {
    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
   }
    #player {
-    width: 0; height: 0;
+    width: 1; height: 0;
+    visibility: hidden;
    }
    #artwork {
     position: absolute; top: 12px; right: auto; bottom: 12px; left: 12px;

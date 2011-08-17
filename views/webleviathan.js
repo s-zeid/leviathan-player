@@ -200,7 +200,7 @@ function hide_large_artwork() {
 function init_player() {
  jwplayer("player").setup({
   flashplayer: "{{root_url}}/static/player.swf",
-  width: 0, height: 0,
+  width: 1, height: 0,
   autostart: false,
   playlist: "none",
   controlbar: "bottom",
