@@ -209,10 +209,10 @@ function init_player() {
   icons: false,
   events: {
    onBufferChange: function(e) {
+    scrubber_seek.setAvailablePercent(e.bufferPercent);
     if (e.bufferPercent == 100 && scrobbled == false &&
         scrobble_threshold == null) {
      var duration = get_player().getDuration();
-     scrubber_seek.setAvailablePercent(e.bufferPercent);
      scrobble_threshold = get_scrobble_threshold(duration);
      update_now_playing(get_current_song_element(), duration);
     }
