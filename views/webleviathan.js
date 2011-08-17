@@ -125,9 +125,7 @@ function get_list_el_from_json(json) {
    row.append(icon);
   }
   row.append($("<span></span>").addClass("name").text(entries[i].name));
-  row.children("span").each(function() {
-   $(this).click(row_clicked);
-  });
+  row.children("span").click(row_clicked);
   var add = $("<span></span>").addClass("add").click(add_link_clicked);
   row.append(add);
   var remove = $("<span></span>").addClass("remove").click(remove_link_clicked);
@@ -540,7 +538,7 @@ function queue_push_one(item_el, queue_el) {
  var queue_el = queue_el;
  if (typeof(queue_el) == "undefined")
   queue_el = get_queue_el();
- var new_item = item_el.clone().attr("id", "queue_" + item_el.attr("id"));
+ var new_item = item_el.clone(true).attr("id", "queue_" + item_el.attr("id"));
  new_item.attr("data-category", "queue");
  var row = new_item.children(".table").children(".row");
  row.children(".name").text(new_item.attr("data-full-name"));
