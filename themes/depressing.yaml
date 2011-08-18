@@ -57,3 +57,5 @@ list_item_selected: ["#E7E7E7", "#DDDDDD"]
 list_link:          ["#A00", "#800"]
                     # clear_link:  normal, hover/active
 clear_link:         ["#AAA", "#FFF"]
+                    # add_remove_style: light/dark
+add_remove_style:   dark

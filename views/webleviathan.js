@@ -822,7 +822,9 @@ function update_volume_icon(muted) {
    $("#volume_button .volume_max").show();
   else if (volume > 33)
    $("#volume_button .volume_med").show();
-  else
+  else if (volume)
    $("#volume_button .volume_min").show();
+  else
+   $("#volume_button .volume_zero").show();
  }
 }

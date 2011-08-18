@@ -36,7 +36,7 @@ toolbar_border:     "#D8CFC5"
 toolbar_art_bg:     "#47423D"
 toolbar_art_border: "#5D564F"
                     # scrubber: highlight, available bg, unavailable bg
-scrubber:           ["#4C4C4C", "#A39D98", "#BFB8B2"]
+scrubber:           ["#4C4C4C", "#A39A93", "#BFB8B2"]
                     # scrubber_handle: background, border
 scrubber_handle:    ["#4C4C4C", "#DFD7CF"]
 list_area_bg:       "#F2F1F0"
@@ -57,3 +57,5 @@ list_item_selected: ["#E8E3DC", "#E4DED7"]
 list_link:          ["#A00", "#800"]
                     # clear_link:  normal, hover/active
 clear_link:         ["#A29D99", "#5D564F"]
+                    # add_remove_style: light/dark
+add_remove_style:   dark

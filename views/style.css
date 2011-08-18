@@ -102,7 +102,7 @@ img {
    position: absolute; top: 0; right: 0; bottom: 0; left: 0;
   }
    #player {
-    width: 1; height: 0;
+    width: 1px; height: 0;
     visibility: hidden;
    }
    #artwork {
@@ -189,14 +189,14 @@ img {
      #control_bar .button img.disabled {
       cursor: default;
      }
-     .scrubber-handle {
-      width: 2px; height: 10px;
-      background-color: {{!theme["scrubber_handle"][0]}};
-      border: 1px solid {{!theme["scrubber_handle"][1]}};
-     }
      #scrubbers {
-      position: absolute; top: 0; right: 90px; bottom: 0; left: 86px;
+      position: absolute; top: 0; right: 96px; bottom: 0; left: 86px;
      }
+      .scrubber-handle {
+       width: 2px; height: 10px;
+       background-color: {{!theme["scrubber_handle"][0]}};
+       border: 1px solid {{!theme["scrubber_handle"][1]}};
+      }
       #seek_bar {
        position: absolute; top: 0; right: 102px; bottom: 0; left: 0;
        font-size: .75em;
@@ -385,12 +385,15 @@ img {
   padding-top: 4px;
   padding-bottom: 4px;
  }
+%if theme["add_remove_style"] not in ("light", "dark"):
+% theme["add_remove_style"] = "dark"
+%end
  #library li .row .add, #library li .row .remove {
   display: table-cell;
   width: 16px; height: 16px;
   padding-right: 8px;
-  background: url("{{root_url}}/images/add.png") no-repeat center center;
+  background: url("{{root_url}}/images/add-{{!theme["add_remove_style"]}}.png") no-repeat center center;
  }
  #library li .row .remove {
-  background-image: url("{{root_url}}/images/remove.png");
+  background-image: url("{{root_url}}/images/remove-{{!theme["add_remove_style"]}}.png");
  }
