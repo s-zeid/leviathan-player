@@ -49,7 +49,7 @@ Starting the server
 Standalone server
 -----------------
 Run `./webleviathan.py` to start the server.  You can specify a custom host
-name and/or port to listen on using the -h / --host and -p / --port switches,
+name and/or port to listen on using the -H / --host and -p / --port switches,
 respectively.
 
 Under Apache
