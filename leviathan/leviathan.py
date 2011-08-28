@@ -52,10 +52,12 @@ from mutagen.easyid3 import EasyID3
 Format = collections.namedtuple("Format", ["ffmpeg_codec"])
 
 # DB version changelog:
+# 3 - added disc_number and track_number fields to songs table
 # 2 - added length field to songs table
 # 1.1 - leviathan_meta "key" field made UNIQUE
 # 1 - initial version
-DB_VERSION = "2"
+DB_VERSION = "3"
+DISC_TRACK_NUMBER_RE = re.compile(r"[^0-9]", re.MULTILINE)
 EXTENSIONS = dict(
  aac  = Format("libfaac"),
  flac = Format("flac"),
@@ -82,7 +84,8 @@ class Albums(object):
   "song_ids_from_album_and_artist": """SELECT id FROM songs WHERE
                                         album = :album AND artist = :artist
                                        ORDER BY
-                                        sort_title, sort_artist, sort_album"""
+                                        disc_number, track_number, sort_title,
+                                        sort_artist, sort_album"""
  }
  Album = collections.namedtuple("Album", "name artist library songs")
  
@@ -225,7 +228,7 @@ class Playlist(UserDict.DictMixin, object):
                            WHERE name = (:name)""",
   "songs_from_id": """SELECT
                        songs.id,relpath,title,sort_title,artist,sort_artist,
-                       album,sort_album,length
+                       album,sort_album,length,disc_number,track_number
                       FROM songs INNER JOIN playlist_entries ON
                        songs.id = playlist_entries.song AND
                        playlist_entries.playlist = :id_
@@ -687,10 +690,10 @@ class Song(UserDict.DictMixin, object):
  queries = {
   "add": """INSERT INTO songs
              (relpath,title,sort_title,artist,sort_artist,album,sort_album,
-              length)
+              length,disc_number,track_number)
             VALUES
              (:relpath,:title,:sort_title,:artist,:sort_artist,:album,
-              :sort_album,:length)""",
+              :sort_album,:length,:disc_number,:track_number)""",
   "delete_playlist_entries_from_id": """DELETE FROM playlist_entries
                                         WHERE song = :id""",
   "delete_song_from_id": """DELETE FROM songs WHERE id = :id""",
@@ -703,21 +706,24 @@ class Song(UserDict.DictMixin, object):
                           ORDER BY name""",
   "song_from_id": """SELECT
                       id,relpath,title,sort_title,artist,sort_artist,album,
-                      sort_album,length
+                      sort_album,length,disc_number,track_number
                      FROM songs WHERE id = (:id)""",
   "song_from_relpath": """SELECT \
                            id,relpath,title,sort_title,artist,sort_artist,
-                           album,sort_album,length
+                           album,sort_album,length,disc_number,track_number
                           FROM songs WHERE relpath = (:relpath)""",
   "update_from_id": """UPDATE songs SET
                         relpath=:relpath,title=:title,sort_title=:sort_title,
                         artist=:artist,sort_artist=:sort_artist,album=:album,
-                        sort_album=:sort_album,length=:length
+                        sort_album=:sort_album,length=:length,
+                        disc_number=:disc_number,track_number=:track_number
                        WHERE id = :id""",
   "update_from_relpath": """UPDATE songs SET
                              title=:title,sort_title=:sort_title,
                              artist=:artist,sort_artist=:sort_artist,
-                             album=:album,sort_album=:sort_album,length=:length
+                             album=:album,sort_album=:sort_album,length=:length,
+                             disc_number=:disc_number,
+                             track_number=:track_number
                             WHERE relpath = :relpath""",
   "update_relpath_from_id": """UPDATE songs SET relpath=:relpath
                                WHERE id = :id"""
@@ -732,8 +738,8 @@ class Song(UserDict.DictMixin, object):
   """
   if not isinstance(library, Library):
    raise TypeError("library must be a Library")
-  if len(info) not in (0, 1, 9):
-   raise TypeError("__init__() takes 1, 2, or 10 arguments")
+  if len(info) not in (0, 1, 11):
+   raise TypeError("__init__() takes 1, 2, or 12 arguments")
   if len(info) == 1:
    search = to_unicode(info[0])
    if isinstance(search, basestring):
@@ -762,7 +768,9 @@ class Song(UserDict.DictMixin, object):
    "sort_artist": to_unicode(info[5]),
    "album": to_unicode(info[6]),
    "sort_album": to_unicode(info[7]),
-   "length": to_unicode(info[8])
+   "length": to_unicode(info[8]),
+   "disc_number": to_unicode(info[9]),
+   "track_number": to_unicode(info[10])
   }
   try:
    self.__data["id"] = int(info[0])
@@ -786,7 +794,8 @@ class Song(UserDict.DictMixin, object):
    qname = "update_from_relpath" if exists else "add"
    c.execute(cls.queries[qname], dict(
     relpath=info[0], title=info[1], sort_title=info[2], artist=info[3],
-    sort_artist=info[4], album=info[5], sort_album=info[6], length=info[7]
+    sort_artist=info[4], album=info[5], sort_album=info[6], length=info[7],
+    disc_number=info[8], track_number=info[9]
    ))
    conn.commit()
    if not quick or return_id:
@@ -834,6 +843,10 @@ class Song(UserDict.DictMixin, object):
  def sort_album(self): return self["sort_album"]
  @property
  def length(self): return self["length"]
+ @property
+ def disc_number(self): return self["disc_number"]
+ @property
+ def track_number(self): return self["track_number"]
  
  @property
  def exists(self):
@@ -851,7 +864,8 @@ class Song(UserDict.DictMixin, object):
  def tuple(self):
   return (self["id"], (self["title"], self["sort_title"], self["artist"],
                        self["sort_artist"], self["album"], self["sort_album"],
-                       self["length"]))
+                       self["length"], self["disc_number"],
+                       self["track_number"]))
  
  def __get_id(self):
   q = self.queries["id_from_relpath"]
@@ -869,7 +883,10 @@ class Song(UserDict.DictMixin, object):
    "artist": to_unicode(info[3]),
    "sort_artist": to_unicode(info[4]),
    "album": to_unicode(info[5]),
-   "sort_album": to_unicode(info[6])
+   "sort_album": to_unicode(info[6]),
+   "length": to_unicode(info[7]),
+   "disc_number": to_unicode(info[8]),
+   "track_number": to_unicode(info[9])
   })
  
  def remove(self):
@@ -905,7 +922,7 @@ unless you know what you're doing.
   "all_ids_sort_id": """SELECT id FROM songs ORDER BY id""",
   "all_songs": """SELECT
                    id,relpath,title,sort_title,artist,sort_artist,album,
-                   sort_album,length
+                   sort_album,length,disc_number,track_number
                   FROM songs ORDER BY sort_title""",
   "id_from_*": """SELECT id FROM songs WHERE %s = :value""",
   "id_from_*_like": """SELECT id FROM songs WHERE %s LIKE :value""",
@@ -1168,12 +1185,18 @@ class Library(object):
        break
      album = to_unicode(mg.get("album", [""])[0])
      sort_album = self._get_sort_value(mg, relpath, "album", album)
+     disc_number = DISC_TRACK_NUMBER_RE.sub("/", mg.get("discnumber", [""])[0])
+     disc_number = disc_number.split("/")[0]
+     disc_number = int(disc_number) if disc_number else None
+     track_number = DISC_TRACK_NUMBER_RE.sub("/", mg.get("tracknumber",[""])[0])
+     track_number = track_number.split("/")[0]
+     track_number = int(track_number) if track_number else None
      try:
       length = mg.info.length
      except AttributeError:
       length = None
      ret = [to_unicode(relpath), title, sort_title, artist, sort_artist, album,
-            sort_album, length]
+            sort_album, length, disc_number, track_number]
    finally:
     os.chdir(cwd)
   return ret
@@ -1209,15 +1232,17 @@ CREATE TABLE "leviathan_meta" (
 );
 
 CREATE TABLE "songs" (
- "id"          integer NOT NULL PRIMARY KEY,
- "relpath"     text    NOT NULL UNIQUE,
- "title"       text    NOT NULL,
- "sort_title"  text    NOT NULL,
- "artist"      text    NOT NULL,
- "sort_artist" text    NOT NULL,
- "album"       text    NOT NULL,
- "sort_album"  text    NOT NULL,
- "length"      numeric
+ "id"           integer NOT NULL PRIMARY KEY,
+ "relpath"      text    NOT NULL UNIQUE,
+ "title"        text    NOT NULL,
+ "sort_title"   text    NOT NULL,
+ "artist"       text    NOT NULL,
+ "sort_artist"  text    NOT NULL,
+ "album"        text    NOT NULL,
+ "sort_album"   text    NOT NULL,
+ "length"       numeric,
+ "disc_number"  numeric,
+ "track_number" numeric
 );
 
 CREATE TABLE "playlists" (
