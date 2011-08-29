@@ -85,7 +85,7 @@ class Albums(object):
                                         album = :album AND artist = :artist
                                        ORDER BY
                                         disc_number, track_number, sort_title,
-                                        sort_artist, sort_album"""
+                                        sort_artist, sort_album, length"""
  }
  Album = collections.namedtuple("Album", "name artist library songs")
  
@@ -164,7 +164,8 @@ class Artists(object):
   "artist_from_artist": """SELECT artist FROM songs WHERE artist = :artist
                            GROUP BY artist ORDER BY sort_artist""",
   "song_ids_from_artist": """SELECT id FROM songs WHERE artist = :artist
-                             ORDER BY sort_title, sort_artist, sort_album"""
+                             ORDER BY
+                              sort_title, sort_artist, sort_album, length"""
  }
  Artist = collections.namedtuple("Artist", "name library songs")
  class Artist(Artist):
@@ -232,12 +233,13 @@ class Playlist(UserDict.DictMixin, object):
                       FROM songs INNER JOIN playlist_entries ON
                        songs.id = playlist_entries.song AND
                        playlist_entries.playlist = :id_
-                      ORDER BY sort_title, sort_artist, sort_album""",
+                      ORDER BY sort_title, sort_artist, sort_album, length""",
   "song_paths_from_id": """SELECT relpath FROM songs
                            INNER JOIN playlist_entries ON
                             songs.id = playlist_entries.song AND
                             playlist_entries.playlist = :id_
-                           ORDER BY sort_title, sort_artist, sort_album""",
+                           ORDER BY
+                            sort_title, sort_artist, sort_album, length""",
   "rename_from_id": """UPDATE playlists SET name = :name WHERE id = :id"""
  }
  
@@ -923,7 +925,8 @@ unless you know what you're doing.
   "all_songs": """SELECT
                    id,relpath,title,sort_title,artist,sort_artist,album,
                    sort_album,length,disc_number,track_number
-                  FROM songs ORDER BY sort_title""",
+                  FROM songs ORDER BY
+                   sort_title, sort_artist, sort_album, length""",
   "id_from_*": """SELECT id FROM songs WHERE %s = :value""",
   "id_from_*_like": """SELECT id FROM songs WHERE %s LIKE :value""",
   "id_from_*_sorted_by_*": """SELECT id FROM songs WHERE %s = :value
