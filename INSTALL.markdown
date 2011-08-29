@@ -9,7 +9,7 @@ commands in this file assume that you are using a Unix-like operating system
 (e.g. Linux or Mac OS X), that you can use sudo, and that your working
 directory is the same one where webleviathan.py is located.
 
-**IMPORTANT:  If you used Leviathan before August 9, 2011, you will need to
+**IMPORTANT:  If you used Leviathan before August 29, 2011, you will need to
 delete your database file and run `leviathan/leviathan.py scan` to rebuild
 it.**
 

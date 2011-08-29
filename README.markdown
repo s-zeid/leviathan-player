@@ -11,7 +11,7 @@ music library manager to find your songs and playlists.  Both the music player
 and the library manager use configuration files to store their settings, and
 these files must be edited manually.
 
-**IMPORTANT:  If you used Leviathan before August 9, 2011, you will need to
+**IMPORTANT:  If you used Leviathan before August 29, 2011, you will need to
 delete your database file and run **`leviathan **scan**`** to rebuild it.**
 
 Requirements
