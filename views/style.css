@@ -87,7 +87,7 @@ img {
 }
  #header {
   position: absolute; top: 0; right: 0; bottom: auto; left: 0;
-  height: 119px;
+  height: 120px;
   margin-bottom: 1em;
   border-bottom: 1px solid {{!theme["toolbar_border"]}};
   background-color: {{!theme["toolbar_bg"]}};
@@ -108,8 +108,8 @@ img {
    #artwork {
     position: absolute; top: 12px; right: auto; bottom: 12px; left: 12px;
     display: table;
-    width: 94px;
-    height: 94px;
+    width: 96px;
+    height: 96px;
    }
     #artwork div {
      display: table-row;
@@ -139,7 +139,7 @@ img {
     position: absolute; top: 12px; right: 12px; bottom: 12px; left: 120px;
    }
     #song_info .title, #song_info .welcome_title {
-     position: absolute; top: 0; right: 0; bottom: 40px; left: 0;
+     position: absolute; top: 0; right: 0; bottom: auto; left: 0;
      height: 40px;
      line-height: 40px;
      font-size: 2em;
@@ -149,7 +149,7 @@ img {
      display: none;
     }
     #song_info .extra {
-     position: absolute; top: 40px; right: 0; bottom: 28px; left: 0;
+     position: absolute; top: 40px; right: 0; bottom: auto; left: 0;
      height: 28px;
      line-height: 28px;
      overflow: hidden;
@@ -161,7 +161,7 @@ img {
       font-style: italic;
      }
     #control_bar {
-     position: absolute; top: 72px; right: 0; bottom: 0; left: 0;
+     position: absolute; top: auto; right: 0; bottom: 0; left: 0;
      height: 24px;
     }
      #control_bar .button {
@@ -235,7 +235,7 @@ img {
       right: 0; left: auto;
      }
  #body {
-  position: absolute; top: 120px; right: 0; bottom: 0; left: 0;
+  position: absolute; top: 121px; right: 0; bottom: 0; left: 0;
   width: 100%;
   clear: both;
   background: {{!theme["page_bg"]}};
