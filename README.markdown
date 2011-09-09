@@ -12,7 +12,7 @@ and the library manager use configuration files to store their settings, and
 these files must be edited manually.
 
 **IMPORTANT:  If you used Leviathan before August 29, 2011, you will need to
-delete your database file and run **`leviathan **scan**`** to rebuild it.**
+delete your database file and run `leviathan scan` to rebuild it.**
 
 Requirements
 ------------
