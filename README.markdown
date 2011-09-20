@@ -50,7 +50,8 @@ If you're using Apache, also run:
    Firefox 4+, Google Chrome, Safari, and Opera 10.5+ should work.  IE9
    might work.  IE7 works but is very buggy.  IE6 and earlier will
    probably NOT work.
- * Adobe Flash Player 9.0+
+ * Adobe Flash Player 9.0+ (for browsers that do not support either playing MP3
+   files using the HTML5 audio API or HTML5 itself)
 
 Installation
 ------------

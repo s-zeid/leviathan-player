@@ -243,7 +243,8 @@ def library(relpath):
   relpath = os.path.splitext(relpath)[0] + ".mp3"
  basename = os.path.basename(relpath)
  directory = os.path.dirname(os.path.join(library.music_path, relpath))
- return static_file(basename.encode(FSENC), directory.encode(FSENC))
+ return static_file(basename.encode(FSENC), directory.encode(FSENC),
+                    mimetype="audio/mpeg")
 
 def list_category(category, format=""):
  artist, id = request.GET.get("artist"), request.GET.get("id")
@@ -315,6 +316,14 @@ def list_category_json(category):
 @view("xspf.xml")
 def list_category_xspf(category):
  return list_category(category, "xspf")
+
+@route("/flashmediaelement.swf")
+def mediaelement_flash():
+ return static("flashmediaelement.swf");
+
+@route("/silverlightmediaelement.xap")
+def mediaelement_silverlight():
+ return static("silverlightmediaelement.xap");
 
 @route("/scrobble/:id")
 def scrobble(id):

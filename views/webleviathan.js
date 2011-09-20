@@ -31,7 +31,10 @@
 
 var PREVIOUS_NO_REPLAY_THRESHOLD = 3;
 
+var buffered_percent = 0;
+var $player = null;
 var play_history = [];
+var player = null;
 var previous_button_last_pressed = 0;
 var repeat = true;
 var scrobble_threshold = null;
@@ -172,10 +175,6 @@ function get_list_url(el, action, type) {
  return url
 }
 
-function get_player() {
- return jwplayer();
-}
-
 function get_queue_el() {
  return $("#queue").children("div").children(".list").children("ul.queue");
 }
@@ -198,51 +197,72 @@ function hide_large_artwork() {
 }
 
 function init_player() {
- jwplayer("player").setup({
-  flashplayer: "{{root_url}}/static/player.swf",
-  width: 1, height: 0,
-  autostart: false,
-  playlist: "none",
-  controlbar: "bottom",
-  stretching: "none",
-  volume: 100,
-  icons: false,
-  events: {
-   onBufferChange: function(e) {
-    scrubber_seek.setAvailablePercent(e.bufferPercent);
-    if (e.bufferPercent == 100 && scrobbled == false &&
-        scrobble_threshold == null) {
-     var duration = get_player().getDuration();
-     scrobble_threshold = get_scrobble_threshold(duration);
-     update_now_playing(get_current_song_element(), duration);
-    }
-   },
-   onComplete: function() { play_next_song(); },
-   onMute: function(e) {
-    update_volume_icon(e.mute);
-    scrubber_volume.setEnabled(!e.mute);
-   },
-   onPause: function() {
-    $("#play_pause .no_play").hide();
-    $("#play_pause .pause").hide();
-    $("#play_pause .play").show();
-    set_icon_url(el, "{{root_url}}/images/pause.png");
-   },
-   onPlay: function() {
-    $("#play_pause .no_play").hide();
-    $("#play_pause .play").hide();
-    $("#play_pause .pause").show();
-    set_icon_url(el, "{{root_url}}/images/play.png");
-   },
-   onReady: function() {
-    update_volume_bar(get_player().getVolume());
-    scrubber_volume.enable();
-   },
-   onVolume: function(e) {
-    update_volume_bar(e.volume);
+ var play_event_callback = function() {
+  // The play event is sent in jPlayer Flash mode when the player is un-paused
+  // AND when playback of a song initially starts.  This differs from the HTML5
+  // spec, which says that this should be sent only when un-paused.  The
+  // playing event is NOT emulated in Flash mode, so I moved the code here and
+  // assigned it to both events.  This has the consequence of the code being
+  // run twice in HTML5 mode, but the resource use in that case should be
+  // trivial.
+  
+  $("#play_pause .no_play").hide();
+  $("#play_pause .play").hide();
+  $("#play_pause .pause").show();
+  set_icon_url(get_current_song_element(), "{{root_url}}/images/play.png");
+ }
+ $player = $("#player").jPlayer({
+  emulateHtml: true,
+  muted: false,
+  preload: "auto",
+  size: {width: 1, height: 0},
+  solution: "html,flash",
+  supplied: "mp3",
+  swfPath: "{{root_path}}/static",
+  loop: false,
+  volume: 1,
+  wmode: "window",
+  ready: function() {
+   $(this).jPlayer("unmute");
+   //$(this).jPlayer("volume", 1);
+   update_volume_bar(this.volume);
+   scrubber_volume.enable();
+  },
+  progress: function(e) {
+   var buffered = buffered_percent = e.jPlayer.status.seekPercent;
+   var duration = e.jPlayer.status.duration;
+   if (buffered && duration) scrubber_seek.setAvailablePercent(buffered);
+   if (buffered == 100 && !scrobbled && scrobble_threshold == null) {
+    scrobble_threshold = get_scrobble_threshold(duration);
+    update_now_playing(get_current_song_element(), duration);
    }
-  }
+  },
+  ended: function() { play_next_song(); },
+  volumechange: function() {
+   update_volume_icon(player.muted);
+   scrubber_volume.setEnabled(!player.muted);
+   if (!player.muted)
+    update_volume_bar(player.volume);
+  },
+  pause: function() {
+   setTimeout(function() {
+    if (player.src) {
+     $("#play_pause .no_play").hide();
+     $("#play_pause .pause").hide();
+     $("#play_pause .play").show();
+     set_icon_url(get_current_song_element(), "{{root_url}}/images/pause.png");
+    }
+   }, 10);
+  },
+  play: play_event_callback,
+  playing: play_event_callback
  });
+ var set_player_interval = setInterval(function() {
+  if ($player.length == 1) {
+   player = $player[0];
+   clearInterval(set_player_interval);
+  }
+ }, 100);
 }
 
 function init_ui() {
@@ -290,15 +310,13 @@ function init_ui() {
  $(document).keypress(key_pressed);
  init_player();
  setInterval(function() {
-  var player = get_player();
-  if (player.getState() == "PLAYING" && scrobbled == false &&
-      scrobble_threshold != null &&
-      player.getPosition() >= scrobble_threshold &&
+  if (buffered_percent && !player.paused && scrobbled == false &&
+      scrobble_threshold != null && player.currentTime >= scrobble_threshold &&
       Number($("#song_info").attr("data-start-time")) + scrobble_threshold
        <= Math.round($.now() / 1000)) {
    scrobbled = true;
    scrobble(get_current_song_element(), $("#song_info").attr("data-start-time"),
-            player.getDuration());
+            player.duration);
   }
  }, 1000);
  seek_interval = setInterval(seek_interval_callback, 250);
@@ -381,12 +399,12 @@ function play_previous_song() {
  var last_press = previous_button_last_pressed;
  previous_button_last_pressed = $.now();
  if (previous_button_last_pressed - last_press > 1000 &&
-     (get_player().getPosition() > PREVIOUS_NO_REPLAY_THRESHOLD ||
+     (player.currentTime > PREVIOUS_NO_REPLAY_THRESHOLD ||
       play_history.length == 0)) {
-  get_player().seek(0);
+  $player.jPlayer("play", 0);
   scrobbled = false;
-  if (get_player().getBuffer() == 100)
-   update_now_playing(get_current_song_element(), get_player().getDuration());
+  if (get_buffer_percent() == 100)
+   update_now_playing(get_current_song_element(), player.duration);
  } else {
   var el = $("#" + play_history[play_history.length - 1]);
   stop_song_only();
@@ -404,6 +422,7 @@ function play_song(el) {
  $("#song_info .title").text(el.attr("data-song-title"));
  $("#song_info .title").attr("title", el.attr("data-song-title"));
  $("#song_info .extra .not_playing").hide();
+ song_length = Number(el.attr("data-song-length"));
  var extra_tooltip = "";
  var album = el.attr("data-song-album");
  if (album != "" && album != "(Unknown)") {
@@ -457,23 +476,21 @@ function play_song_finish_loading() {
  player_load(el.attr("data-song-url"));
  player_play();
  if (!scrubber_seek.enabled) scrubber_seek.enable();
- song_length = Number(el.attr("data-song-length"));
  $("#song_length").text(time_text(song_length))
  $("#song_info").attr("data-song-loaded", "true");
  $("#song_info").attr("data-start-time", String(Math.round($.now() / 1000)));
- update_now_playing(el);
 }
 
 function player_load(url) {
- get_player().load(url);
+ $player.jPlayer("setMedia", {mp3: url});
 }
 
 function player_pause() {
- get_player().pause(true);
+ player.pause();
 }
 
 function player_play() {
- get_player().play(true);
+ player.play();
 }
 
 function player_stop() {
@@ -484,7 +501,10 @@ function player_stop() {
 }
 
 function player_toggle() {
- get_player().play();
+ if (player.paused)
+  player.play();
+ else
+  player.pause();
 }
 
 function process_row(el, callback) {
@@ -549,17 +569,6 @@ function queue_push_one(item_el, queue_el) {
   queue_el.append(new_item);
 }
 
-function queue_to_jwplayer_playlist() {
- var arr = [];
- get_queue_el().children("li").each(function() {
-  arr.push({
-   file: $(this).attr("data-song-url"),
-   description: $(this).attr("id")
-  });
- });
- return arr;
-}
-
 function queue_to_xspf() {
  var container = $("<div></div>");
  var xspf = $("<playlist></playlist>").attr("version", "1");
@@ -602,6 +611,7 @@ function reset_scrobble_variables() {
 
 function reset_seek_bar() {
  scrubber_seek.reset()
+ scrubber_seek.setAvailablePercent(0);
  $("#time_elapsed, #song_length").text(time_text(0));
 }
 
@@ -623,8 +633,7 @@ function scrobble(el, start_time, duration) {
 }
 
 function scrubber_seek_changed(e) {
- var player = get_player();
- player.seek(player.getDuration() * e.coefficient);
+ $player.jPlayer("play", player.duration * e.coefficient);
  if (seek_interval) {
   clearInterval(seek_interval);
   seek_interval = null;
@@ -632,15 +641,13 @@ function scrubber_seek_changed(e) {
 }
 
 function scrubber_volume_changed(e) {
- var player = get_player();
- player.setVolume(e.percent);
+ $player.jPlayer("volume", e.coefficient);
 }
 
 function seek_interval_callback() {
- var player = get_player();
- var state = player.getState();
- if (state == "PLAYING" || state == "BUFFERING")
-  update_seek_bar(player.getPosition());
+ // if buffer is not empty
+ if (buffered_percent)
+  update_seek_bar(player.currentTime);
 }
 
 function set_icon_url(el, icon_url) {
@@ -729,7 +736,8 @@ function stop_playing() {
 }
 
 function stop_song_only() {
- get_player().stop();
+ $player.jPlayer("clearMedia");
+ buffered_percent = 0;
  song_length = 0;
  reset_seek_bar();
  reset_scrobble_variables();
@@ -752,7 +760,8 @@ function time_text(seconds) {
 }
 
 function toggle_mute() {
- get_player().setMute();
+ player.muted = !player.muted;
+ $player.jPlayer("mute", player.muted);
 }
 
 function unselect_current_song() {
@@ -806,9 +815,9 @@ function update_seek_bar(position, duration) {
   $("#song_length").text(time_text(duration));
 }
 
-function update_volume_bar(percent) {
+function update_volume_bar(coeff) {
  update_volume_icon();
- scrubber_volume.moveToPercent(percent);
+ scrubber_volume.moveToPercent(coeff * 100);
 }
 
 function update_volume_icon(muted) {
@@ -817,10 +826,10 @@ function update_volume_icon(muted) {
   $("#volume_button .volume_muted").show();
  } else {
   $("#volume_button img").hide()
-  var volume = get_player().getVolume();
-  if (volume > 66)
+  var volume = player.volume;
+  if (volume > 0.66)
    $("#volume_button .volume_max").show();
-  else if (volume > 33)
+  else if (volume > 0.33)
    $("#volume_button .volume_med").show();
   else if (volume)
    $("#volume_button .volume_min").show();
