@@ -192,6 +192,9 @@ img {
      #scrubbers {
       position: absolute; top: 0; right: 96px; bottom: 0; left: 86px;
      }
+      .DerpScrubber_clickable.DerpScrubber_enabled {
+       cursor: pointer;
+      }
       .scrubber-handle {
        width: 2px; height: 10px;
        background-color: {{!theme["scrubber_handle"][0]}};
