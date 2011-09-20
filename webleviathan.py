@@ -317,14 +317,6 @@ def list_category_json(category):
 def list_category_xspf(category):
  return list_category(category, "xspf")
 
-@route("/flashmediaelement.swf")
-def mediaelement_flash():
- return static("flashmediaelement.swf");
-
-@route("/silverlightmediaelement.xap")
-def mediaelement_silverlight():
- return static("silverlightmediaelement.xap");
-
 @route("/scrobble/:id")
 def scrobble(id):
  timestamp = int(request.GET.get("timestamp", round(time.time())))

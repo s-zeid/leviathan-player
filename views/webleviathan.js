@@ -245,6 +245,7 @@ function init_player() {
     update_volume_bar(player.volume);
   },
   pause: function() {
+   // Don't change icon when switching tracks
    setTimeout(function() {
     if (player.src) {
      $("#play_pause .no_play").hide();
@@ -257,12 +258,7 @@ function init_player() {
   play: play_event_callback,
   playing: play_event_callback
  });
- var set_player_interval = setInterval(function() {
-  if ($player.length == 1) {
-   player = $player[0];
-   clearInterval(set_player_interval);
-  }
- }, 100);
+ player = $player[0];
 }
 
 function init_ui() {
