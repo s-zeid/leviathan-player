@@ -32,8 +32,8 @@
 body {
  margin: 0px;
  background: {{!theme["toolbar_bg"]}};
- font-family: "Ubuntu", "DejaVu Sans", "Bitstream Vera Sans", "Verdana",
-              sans-serif;
+ font-family: "Ubuntu", "Droid Sans", "Trebuchet MS", "DejaVu Sans",
+              "Bitstream Vera Sans", "Verdana", sans-serif;
  font-size: 1em;
  color: {{!theme["toolbar_text"]}};
  overflow: hidden;
@@ -45,6 +45,11 @@ a, #library li .table .row span {
 }
 a:hover, a:active {
  color: {{!theme["page_link"][1]}};
+}
+em, i {
+ font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
+              "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
+ font-style: italic;
 }
 h1, .h1, #title {
  font-size: 2em;
@@ -158,6 +163,8 @@ img {
       display: none;
      }
      #song_info .not_playing, #song_info .name {
+      font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
+                   "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
       font-style: italic;
      }
     #control_bar {
