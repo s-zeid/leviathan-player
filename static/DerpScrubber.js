@@ -361,14 +361,14 @@ var DerpScrubber = (function() {
    function doUnbind(event) {
     event.preventDefault();
     scrubber.moveUser(event, true);
-    $(window).unbind("mousemove", doMove).unbind("mouseup", doUnbind);
+    $(document).unbind("mousemove", doMove).unbind("mouseup", doUnbind);
    }
    function handler(event) {
     event.preventDefault();
     // Left mouse button only
     if (event.which == 1 && scrubber.clickable && scrubber.enabled) {
      doMove(event);
-     $(window).mousemove(doMove).mouseup(doUnbind);
+     $(document).mousemove(doMove).mouseup(doUnbind);
     }
    }
    return handler;
@@ -427,6 +427,7 @@ var DerpScrubber = (function() {
   
   moveUser: function(event, last) {
    this.userMoveLock = true;
+   var position;
    if (this.orientation == "horizontal")
     position = event.pageX - this.getBarOffset();
    else
