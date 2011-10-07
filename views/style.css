@@ -394,6 +394,7 @@ img {
   vertical-align: middle;
   padding-top: 4px;
   padding-bottom: 4px;
+  line-height: 15px;
  }
 %if theme["add_remove_style"] not in ("light", "dark"):
 % theme["add_remove_style"] = "dark"
