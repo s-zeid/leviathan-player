@@ -629,7 +629,8 @@ function scrobble(el, start_time, duration) {
 }
 
 function scrubber_seek_changed(e) {
- $player.jPlayer("play", player.duration * e.coefficient);
+ var duration = (song_length) ? song_length : player.duration;
+ $player.jPlayer("play", duration * e.coefficient);
  if (seek_interval) {
   clearInterval(seek_interval);
   seek_interval = null;
