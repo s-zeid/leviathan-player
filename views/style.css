@@ -186,12 +186,11 @@ img {
      }
      #control_bar .button img {
       display: none;
+      position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+      cursor: pointer;
      }
      #control_bar .button img.default {
       display: inline;
-     }
-     #control_bar .button img {
-      cursor: pointer;
      }
      #control_bar .button img.disabled {
       cursor: default;
@@ -215,7 +214,7 @@ img {
        #time_elapsed {
         position: absolute; top: 0; right: auto; bottom: 0; left: 0;
         width: 4em;
-        line-height: 22px;
+        line-height: 17pt;
        }
        #seek_scrubber {
         position: absolute; top: 0; right: 4em; bottom: 0; left: 4em;
@@ -223,7 +222,7 @@ img {
        #song_length {
         position: absolute; top: 0; right: 0; bottom: 0; left: auto;
         width: 4em;
-        line-height: 22px; 
+        line-height: 17pt;
        }
       #volume_bar {
        position: absolute; top: 0; right: 0; bottom: 0; left: auto;
