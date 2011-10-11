@@ -399,7 +399,7 @@ function play_previous_song() {
       play_history.length == 0)) {
   $player.jPlayer("play", 0);
   scrobbled = false;
-  if (get_buffer_percent() == 100)
+  if (buffered_percent == 100)
    update_now_playing(get_current_song_element(), player.duration);
  } else {
   var el = $("#" + play_history[play_history.length - 1]);
