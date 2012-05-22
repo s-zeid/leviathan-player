@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+*.swp
 artwork-cache/generic/*
 artwork-cache/library/*
 leviathan/.git*
