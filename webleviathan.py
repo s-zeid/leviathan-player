@@ -193,11 +193,26 @@ def get_artist_art_relpath(relpath, side_length=0):
     break
  return image_path
 
+def get_dom_id(category, id, parent=None):
+ quoted_id = quote(to_unicode(id).encode("utf8"), "")
+ dom_id = (parent+"_" if parent else "")+"%s_entry_%s" % (category,quoted_id)
+ dom_id = category + "_" + hashlib.sha1(dom_id).hexdigest()
+ return dom_id
+
 def get_list(category, id=None, queue=None):
  # Format: (id, name, Song object) unless otherwise specified
  # id is the same as name for artists and albums
  if category == "queue":
-  queue = queue if queue != None else request.GET.get("queue", "").split(",")
+  cookies = getattr(request, "cookies", getattr(request, "COOKIES"))
+  if queue == None:
+   if "queue" in request.GET:
+    queue = request.GET.get("queue", "")
+    if ":" in queue: queue.replace(":", ",")
+    queue = queue.split(",")
+   elif "queue" in cookies:
+    queue = cookies["queue"].split(":")
+   else:
+    queue = []
   l = [library.songs[int(i)] for i in queue if i != ""]
   return [(i.id, i.title, i) for i in l]
  elif category == "artist":
@@ -261,8 +276,7 @@ def list_category(category, format=""):
   l = []
   for i in get_list(category, id):
    quoted_id = quote(to_unicode(i[0]).encode("utf8"), "")
-   dom_id = (parent+"_" if parent else "")+"%s_entry_%s" % (category,quoted_id)
-   dom_id = category + "_" + hashlib.sha1(dom_id).hexdigest()
+   dom_id = get_dom_id(category, i[0], parent)
    info = ((i[2] if isinstance(i[2], leviathan.Song) else
             [quote(to_unicode(j).encode("utf8"), "") for j in i[2]])
            if i[2] else None)

@@ -53,6 +53,8 @@ function add_link_clicked(event) {
 }
 
 function add_to_queue(el) {
+ if (el === "server")
+  el = $("<div></div>").attr("data-category", "queue").attr("id", "emily");
  var category = el.attr("data-category");
  if (category == "album" || category == "playlist" || category == "songs") {
   queue_push_one(el);
@@ -89,6 +91,7 @@ function clear_queue(update_dom) {
  play_history = [];
  update_prev_next_buttons();
  stop_playing();
+ save_queue_to_cookie();
 }
 
 function get_current_song_element() {
@@ -159,8 +162,11 @@ function get_list_url(el, action, type) {
   file = "list.json";
  else if (type == "xspf")
   file = "xspf.xml";
- if (category == "album" || category == "playlist" || category == "songs") {
+ if (category == "album" || category == "playlist"
+     || category == "songs") {
   return ""
+ } else if (category == "queue") {
+  return url + category + "/" + file;
  } else if (category == "top") {
   url += id + "/" + file + "?";
  } else {
@@ -316,6 +322,7 @@ function init_ui() {
   }
  }, 1000);
  seek_interval = setInterval(seek_interval_callback, 250);
+ add_to_queue("server");
 }
 
 function insert_list_from_json_url(url, el, callback) {
@@ -541,28 +548,38 @@ function queue_push_each(list_el, replace) {
  else
   queue_el = get_queue_el();
  list_el.children("li").each(function() {
-  queue_push_one($(this), queue_el);
+  queue_push_one($(this), queue_el, false);
  });
  if (replace == true) {
   get_queue_el().replaceWith(queue_el);
   play_history = [];
  }
+ save_queue_to_cookie();
 }
 
-function queue_push_one(item_el, queue_el) {
+function queue_push_one(item_el, queue_el, standalone) {
+ if (typeof(standalone) === "undefined")
+  standalone = true;
  if (item_el.hasClass("border"))
   return;
  var queue_el = queue_el;
  if (typeof(queue_el) == "undefined")
   queue_el = get_queue_el();
- var new_item = item_el.clone(true).attr("id", "queue_" + item_el.attr("id"));
+ var dom_id = item_el.attr("id");
+ if (dom_id.indexOf("queue_") !== 0) dom_id = "queue_" + dom_id;
+ var new_item = item_el.clone(true).attr("id", dom_id);
  new_item.attr("data-category", "queue");
  var row = new_item.children(".table").children(".row");
  row.children(".name").text(new_item.attr("data-full-name"));
  row.children(".add").remove();
  row.children(".remove").css("display", "");
- if (queue_el.children("#" + new_item.attr("id")).length == 0)
+ var selector = "#" + new_item.attr("id");
+ if ($.isNumeric(new_item.attr("data-id")))
+  selector += ", [data-id='" + new_item.attr("data-id") + "']";
+ if (queue_el.children(selector).length == 0)
   queue_el.append(new_item);
+ if (standalone)
+  save_queue_to_cookie();
 }
 
 function queue_to_xspf() {
@@ -591,6 +608,7 @@ function remove_from_queue(el) {
   if (el.attr("id") == $("#song_info").attr("data-song-dom-id"))
    play_next_song();
   el.remove();
+  save_queue_to_cookie();
  }
 }
 
@@ -613,6 +631,22 @@ function reset_seek_bar() {
 
 function row_clicked(event) {
  process_row($(this).parent(".row").parent(".table").parent("li"));
+}
+
+function save_queue_to_cookie() {
+ // Emily owes me one of those :/
+ 
+ setTimeout(function() {
+  var queue = get_queue_el();
+  var songs = new Array();
+  queue.children("li").each(function() {
+   songs.push($(this).attr("data-id"));
+  });
+  
+  var expires = new Date($.now() + 1000*60*60*24*365*100).toUTCString();
+  document.cookie = ("queue=" + songs.join(":")
+   + "; path={{root_path}}/list/queue; expires=" + expires);
+ }, 1);
 }
 
 function scrobble(el, start_time, duration) {
