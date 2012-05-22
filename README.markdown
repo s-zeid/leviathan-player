@@ -3,7 +3,7 @@ Leviathan Music Player
 
 A free software, minimalist, Web-based music player.
 
-Copyright (C) 2010-2011 Scott Zeid  
+Copyright (C) 2010-2012 Scott Zeid  
 http://leviathan.srwz.us/
 
 Leviathan Music Player is a Web-based music player.  It uses the Leviathan
