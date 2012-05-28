@@ -54,7 +54,7 @@ function add_link_clicked(event) {
 
 function add_to_queue(el) {
  if (el === "server")
-  el = $("<div></div>").attr("data-category", "queue").attr("id", "emily");
+  el = $('<div data-category="queue" class="emily"></div>');
  var category = el.attr("data-category");
  if (category == "album" || category == "playlist" || category == "songs") {
   queue_push_one(el);
@@ -269,19 +269,13 @@ function init_player() {
 
 function init_ui() {
  scrubber_seek = new DerpScrubber({
-  width: "100%", height: "24px", barSize: "6px", outerBG: "transparent",
-  highlightBG: "{{!theme['scrubber'][0]}}",
-  availableBG: "{{!theme['scrubber'][1]}}",
-  barBG: "{{!theme['scrubber'][2]}}",
+  width: "100%", height: "24px", barSize: "6px",
   handle: $("<span></span>").addClass("scrubber-handle")
  }).onUserMove(scrubber_seek_changed).onUserMoveFinished(function() {
   setTimeout("seek_interval = setInterval(seek_interval_callback, 250);", 250);
  }).appendTo("#seek_scrubber");
  scrubber_volume = new DerpScrubber({
-  width: "100%", height: "24px", barSize: "6px", outerBG: "transparent",
-  highlightBG: "{{!theme['scrubber'][0]}}",
-  availableBG: "{{!theme['scrubber'][1]}}",
-  barBG: "{{!theme['scrubber'][2]}}",
+  width: "100%", height: "24px", barSize: "6px",
   handle: $("<span></span>").addClass("scrubber-handle")
  }).onUserMove(scrubber_volume_changed).appendTo("#volume_scrubber");
  $("#artwork .generic").click(function() { show_large_artwork(); });

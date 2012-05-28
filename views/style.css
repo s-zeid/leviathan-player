@@ -201,6 +201,18 @@ img {
       .DerpScrubber_clickable.DerpScrubber_enabled {
        cursor: pointer;
       }
+      .DerpScrubber_outer {
+       background: transparent;
+      }
+      .DerpScrubber_highlight {
+       background: {{!theme['scrubber'][0]}};
+      }
+      .DerpScrubber_availableArea {
+       background: {{!theme['scrubber'][1]}};
+      }
+      .DerpScrubber_bar {
+       background: {{!theme['scrubber'][2]}};
+      }
       .scrubber-handle {
        width: 2px; height: 10px;
        background-color: {{!theme["scrubber_handle"][0]}};
