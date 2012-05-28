@@ -60,7 +60,6 @@ config(root=__file__)
 config.name = "Leviathan Music Player"
 config.template.defaults = dict(
  settings=lambda: settings(),
- themes=lambda: list_themes(),
  url_scheme=lambda: url_scheme()
 )
 
@@ -68,6 +67,7 @@ artwork_cache_dir = os.path.join(config.root, "artwork-cache")
 generic_artwork_cache_dir = os.path.join(artwork_cache_dir, "generic")
 library_artwork_cache_dir = os.path.join(artwork_cache_dir, "library")
 
+DEFAULT_THEME      = "Radiance"
 FSENC              = leviathan.getfilesystemencoding()
 LAST_FM_API_KEY    = "564bfe2575a418e90e6977cfc71d7fbe"
 LAST_FM_API_SECRET = "164dd907b69d8b50d047ba66d233249e"
@@ -243,10 +243,14 @@ def get_list(category, id=None, queue=None):
 @route("/")
 @view("index")
 def index():
- default_theme = request.GET.get("theme", settings()["theme"])
- if default_theme not in list_themes():
-  default_theme = settings()["theme"]
- return dict(default_theme=default_theme)
+ themes = list_themes()
+ default_theme = request.GET.get("theme", None)
+ if default_theme not in themes:
+  default_theme = settings().get("theme", DEFAULT_THEME)
+  if default_theme not in themes:
+   default_theme = DEFAULT_THEME
+ themes.sort()
+ return dict(default_theme=default_theme, themes=themes)
 
 def last_fm_login():
  cfg = settings()["last.fm"];
@@ -368,11 +372,14 @@ def style_css(selected_theme=None):
  return dict(theme=theme_dict)
 
 def theme(selected_theme=None):
+ themes = list_themes()
  if not selected_theme:
-  selected_theme = settings()["theme"]
+  selected_theme = settings().get("theme", DEFAULT_THEME)
+  if selected_theme not in themes:
+   selected_theme = DEFAULT_THEME
  selected_theme_path = os.path.join("themes", selected_theme + ".yaml")
  if (not os.path.exists(selected_theme_path) or
-     selected_theme not in list_themes()):
+     selected_theme not in themes):
   raise ValueError("the theme \"%s\" does not exist" % selected_theme)
  return load_yaml_file(os.path.join("themes", selected_theme + ".yaml"))
 
