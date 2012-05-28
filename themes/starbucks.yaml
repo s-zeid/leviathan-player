@@ -1,0 +1,61 @@
+# Leviathan Music Player
+# A free software, minimalist, Web-based music player.
+# 
+# Copyright (C) 2010-2012 Scott Zeid
+# http://leviathan.srwz.us/
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+# 
+# Except as contained in this notice, the name(s) of the above copyright holders
+# shall not be used in advertising or otherwise to promote the sale, use or
+# other dealings in this Software without prior written authorization.
+
+page_bg:            "#E6F1EE"
+page_text:          "#067655"
+                    # page_link:  normal, hover/active
+page_link:          ["#067655", "#04523B"]
+toolbar_bg:         "#067655"
+toolbar_text:       "#E6F1EE"
+toolbar_border:     "#04523B"
+toolbar_art_bg:     "#03402E"
+toolbar_art_border: "#04523B"
+                    # scrubber: highlight, available bg, unavailable bg
+scrubber:           ["#E6F1EE", "#83ADA1", "#078A63"]
+                    # scrubber_handle: background, border
+scrubber_handle:    ["#E6F1EE", "#067655"]
+list_area_bg:       "#E6F1EE"
+list_area_text:     "#067655"
+list_bg:            "#CEDBD7"
+list_border:        "#067655"
+list_header_bg:     "#067655"
+list_header_text:   "#E6F1EE"
+                    # list_item_bg:  one per level; top level first
+list_item_bg:       ["#E6F1EE", "#DBE6E3", "#CCD9D5", "#C0CFCA"]
+                    # list_item_border:  one per level; top level first
+list_item_border:   ["#E0EBE8", "#D3DEDB", "#C5D1CD", "#B8C7C2"]
+                    # list_item_hover:  top level, deeper levels
+list_item_hover:    ["#F3FAF8", "#E6F1EE"]
+                    # list_item_selected:  background, border
+list_item_selected: ["#DBE6E3", "#D3DEDB"]
+                    # list_link:  normal, hover/active
+list_link:          ["#067655", "#04523B"]
+                    # clear_link:  normal, hover/active
+clear_link:         ["#83ADA1", "#E6F1EE"]
+                    # add_remove_style: light/dark
+add_remove_style:   dark

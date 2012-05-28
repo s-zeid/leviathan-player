@@ -33,6 +33,7 @@ import base64
 import datetime
 import hashlib
 import os
+import re
 import stat
 import string
 import time
@@ -59,7 +60,7 @@ config(root=__file__)
 config.name = "Leviathan Music Player"
 config.template.defaults = dict(
  settings=lambda: settings(),
- theme=lambda: theme(),
+ themes=lambda: list_themes(),
  url_scheme=lambda: url_scheme()
 )
 
@@ -242,7 +243,10 @@ def get_list(category, id=None, queue=None):
 @route("/")
 @view("index")
 def index():
- return dict()
+ default_theme = request.GET.get("theme", settings()["theme"])
+ if default_theme not in list_themes():
+  default_theme = settings()["theme"]
+ return dict(default_theme=default_theme)
 
 def last_fm_login():
  cfg = settings()["last.fm"];
@@ -331,6 +335,10 @@ def list_category_json(category):
 def list_category_xspf(category):
  return list_category(category, "xspf")
 
+def list_themes():
+ return [re.sub(r"\.ya?ml$", "", i, re.I) for i in os.listdir("themes")
+         if re.match(r"^[^._].*\.ya?ml$", i, re.I)] 
+
 @route("/scrobble/:id")
 def scrobble(id):
  timestamp = int(request.GET.get("timestamp", round(time.time())))
@@ -349,13 +357,23 @@ def settings():
  return load_yaml_file(SETTINGS_FILE)
 
 @route("/style.css")
+@route("/theme/:selected_theme.css")
 @view("style.css")
-def style_css():
+def style_css(selected_theme=None):
+ try:
+  theme_dict = theme(selected_theme)
+ except ValueError:
+  raise HTTPError(404)
  response.content_type = "text/css"
- return dict()
+ return dict(theme=theme_dict)
 
-def theme():
- selected_theme = settings()["theme"]
+def theme(selected_theme=None):
+ if not selected_theme:
+  selected_theme = settings()["theme"]
+ selected_theme_path = os.path.join("themes", selected_theme + ".yaml")
+ if (not os.path.exists(selected_theme_path) or
+     selected_theme not in list_themes()):
+  raise ValueError("the theme \"%s\" does not exist" % selected_theme)
  return load_yaml_file(os.path.join("themes", selected_theme + ".yaml"))
 
 def to_unicode(s, encoding="utf8"):
