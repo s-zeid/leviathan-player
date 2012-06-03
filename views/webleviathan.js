@@ -29,6 +29,7 @@
  *
  */
 
+var DEFAULT_DOCUMENT_TITLE;
 var PREVIOUS_NO_REPLAY_THRESHOLD = 3;
 
 var buffered_percent = 0;
@@ -268,6 +269,7 @@ function init_player() {
 }
 
 function init_ui() {
+ DEFAULT_DOCUMENT_TITLE = document.title;
  scrubber_seek = new DerpScrubber({
   width: "100%", height: "24px", barSize: "6px",
   handle: $("<span></span>").addClass("scrubber-handle")
@@ -419,6 +421,7 @@ function play_song(el) {
  $("#song_info .title").text(el.attr("data-song-title"));
  $("#song_info .title").attr("title", el.attr("data-song-title"));
  $("#song_info .extra .not_playing").hide();
+ document.title = el.attr("data-full-name");
  song_length = Number(el.attr("data-song-length"));
  var extra_tooltip = "";
  var album = el.attr("data-song-album");
@@ -758,6 +761,7 @@ function stop_playing() {
  $("#artwork .artwork").hide();
  $("#artwork .generic").show();
  $("#song_info").attr("data-song-dom-id", "");
+ document.title = DEFAULT_DOCUMENT_TITLE;
 }
 
 function stop_song_only() {
