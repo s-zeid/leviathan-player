@@ -29,6 +29,7 @@
  *
  */
 
+var COOKIE_NAME_PREFIX = "{{COOKIE_NAME_PREFIX}}";
 var DEFAULT_DOCUMENT_TITLE;
 var PREVIOUS_NO_REPLAY_THRESHOLD = 3;
 
@@ -53,21 +54,24 @@ function add_link_clicked(event) {
   update_prev_next_buttons();
 }
 
-function add_to_queue(el) {
+function add_to_queue(el, callback) {
  if (el === "server")
   el = $('<div data-category="queue" class="emily"></div>');
  var category = el.attr("data-category");
- if (category == "album" || category == "playlist" || category == "songs") {
+ if (category == "album" || category == "playlist" || category == "songs"){
   queue_push_one(el);
+  if ($.type(callback) === "function") callback();
  } else if (el.children(".children").children("ul").length == 1 &&
             category != "artists") {
   queue_push_each(el.children(".children").children("ul").first());
+  if ($.type(callback) === "function") callback();
  } else {
   var url = get_list_url(el, "add", "json");
   var tmp = $("<div></div>");
   insert_list_from_json_url(url, tmp, function() {
    queue_push_each(tmp.children("ul"));
    tmp.html("");
+   if ($.type(callback) === "function") callback();
   });
  }
 }
@@ -93,6 +97,52 @@ function clear_queue(update_dom) {
  update_prev_next_buttons();
  stop_playing();
  save_queue_to_cookie();
+}
+
+function cookie_delete(name) {
+ cookie_set(COOKIE_NAME_PREFIX + name, "",
+            "Thu, 01 Jan 1970 00:00:00 GMT", "{{root_path}}/");
+}
+
+function cookie_get(name) {
+ name = COOKIE_NAME_PREFIX + name;
+ var re = ("(?:" + name.replace(/([-\\^$*+?.():=!|{}\[\]])/g, "\\$&")
+           + "=)(.*?)(?:;.*)?$");
+ var match = document.cookie.match(new RegExp(re));
+ if (match != null && match.length > 1)
+  return unescape(match[1]);
+}
+
+function cookie_set(name, value, expires, path, domain, secure, httpOnly) {
+ name = COOKIE_NAME_PREFIX + name;
+ if (!name || /^(?:path|domain|max-age|expires|secure)$/i.test(name))
+  throw new TypeError("cookie name contains a reserved word");
+ 
+ value = String(value).replace(/([\x00-\x20",;\\\x7f])/g, function(c) {
+          return escape(c);
+         });
+ 
+ if (!path) path = "{{root_path}}/";
+ 
+ if ($.type(expires) === "number")
+  expires = "; max-age=" + expires;
+ else {
+  if (expires && $.type(expires) === "date")
+   expires = expires.toUTCString();
+  expires = "; expires=" + expires;
+ }
+ 
+ document.cookie = (name + "=" + value 
+  + "; path=" + path
+  + ((domain)   ? "; domain=" + domain : "")
+  + ((expires)  ? expires              : "")
+  + ((secure)   ? "; secure"           : "")
+  + ((httpOnly) ? "; httpOnly"         : "")
+ );
+}
+
+function distant_future() {
+ return new Date($.now() + 1000*60*60*24*365*100).toUTCString();
 }
 
 function get_current_song_element() {
@@ -203,7 +253,7 @@ function hide_large_artwork() {
  });
 }
 
-function init_player() {
+function init_player(callback) {
  var play_event_callback = function() {
   // The play event is sent in jPlayer Flash mode when the player is un-paused
   // AND when playback of a song initially starts.  This differs from the HTML5
@@ -234,6 +284,7 @@ function init_player() {
    //$(this).jPlayer("volume", 1);
    update_volume_bar(this.volume);
    scrubber_volume.enable();
+   if ($.type(callback) === "function") callback();
   },
   progress: function(e) {
    var buffered = buffered_percent = e.jPlayer.status.seekPercent;
@@ -246,10 +297,8 @@ function init_player() {
   },
   ended: function() { play_next_song(); },
   volumechange: function() {
-   update_volume_icon(player.muted);
    scrubber_volume.setEnabled(!player.muted);
-   if (!player.muted)
-    update_volume_bar(player.volume);
+   update_volume_bar(player.volume);
   },
   pause: function() {
    // Don't change icon when switching tracks
@@ -302,23 +351,37 @@ function init_ui() {
  });
  $("#songs .table .row .add").unbind("click").click(add_link_clicked);
  reset_seek_bar();
- set_repeat({{"true" if settings["defaults"]["repeat"] else "false"}});
- set_scrobbling({{"true" if settings["defaults"]["scrobbling"] else "false"}});
- set_shuffle({{"true" if settings["defaults"]["shuffle"] else "false"}});
+ set_repeat(Number(cookie_get("repeat")) || {{"true" if settings["defaults"]["repeat"] else "false"}});
+ set_scrobbling(Number(cookie_get("scrobble")) || {{"true" if settings["defaults"]["scrobbling"] else "false"}});
+ set_shuffle(Number(cookie_get("shuffle")) || {{"true" if settings["defaults"]["shuffle"] else "false"}});
  $(document).keypress(key_pressed);
- init_player();
- setInterval(function() {
-  if (buffered_percent && !player.paused && scrobbled == false &&
-      scrobble_threshold != null && player.currentTime >= scrobble_threshold &&
-      Number($("#song_info").attr("data-start-time")) + scrobble_threshold
-       <= Math.round($.now() / 1000)) {
-   scrobbled = true;
-   scrobble(get_current_song_element(), $("#song_info").attr("data-start-time"),
-            player.duration);
-  }
- }, 1000);
- seek_interval = setInterval(seek_interval_callback, 250);
- add_to_queue("server");
+ init_player(function() {
+  setInterval(function() {
+   if (buffered_percent && !player.paused && scrobbled == false &&
+       scrobble_threshold != null &&
+       player.currentTime >= scrobble_threshold &&
+       Number($("#song_info").attr("data-start-time")) + scrobble_threshold
+	<= Math.round($.now() / 1000)) {
+    scrobbled = true;
+    scrobble(get_current_song_element(),
+             $("#song_info").attr("data-start-time"), player.duration);
+   }
+  }, 1000);
+  seek_interval = setInterval(seek_interval_callback, 250);
+  var c_volume = Number(cookie_get("volume"));
+  if ($.isNumeric(c_volume)) $player.jPlayer("volume", c_volume);
+  var c_muted = Number(cookie_get("muted"));
+  if ($.isNumeric(c_muted)) toggle_mute(c_muted);
+  add_to_queue("server", function() {
+   var song_id = Number(cookie_get("song"));
+   if ($.isNumeric(song_id)) {
+    var song = get_queue_el().children("[data-id='" + song_id + "']");
+    if (song.length) {
+     play_song(song.first(), Number(cookie_get("time")), true);
+    }
+   } 
+  });
+ });
 }
 
 function insert_list_from_json_url(url, el, callback) {
@@ -412,7 +475,7 @@ function play_previous_song() {
  }
 }
 
-function play_song(el) {
+function play_song(el, time, paused) {
  stop_song_only();
  $("#song_info").attr("data-song-loaded", "false");
  $("#song_info").attr("data-start-time", "");
@@ -447,8 +510,14 @@ function play_song(el) {
    $("#song_info .extra").removeAttr("title");
   } catch(e) {}
  $("#song_info").attr("data-song-dom-id", el.attr("id"));
+ cookie_set("song", el.attr("data-id"), distant_future());
  el.addClass("selected");
- set_icon_url(el, "{{root_url}}/images/play.png");
+ set_icon_url(el,"{{root_url}}/images/"+((!paused)?"play":"pause")+".png");
+ if (paused) {
+  $("#play_pause .no_play").hide();
+  $("#play_pause .pause").hide();
+  $("#play_pause .play").show();
+ }
  var art_url = el.attr("data-song-art-directory") + "/album.png?size=92";
  if ($("#artwork .artwork").attr("src") != art_url) {
   $("#artwork .artwork").replaceWith(
@@ -457,40 +526,48 @@ function play_song(el) {
   );
   $("#artwork .generic").show();
   var img = $("<img />").addClass("artwork").attr("src", art_url);
-  var timeout = setTimeout(play_song_finish_loading, 3000);
+  var timeout = setTimeout(function() {
+   play_song_finish_loading(time, paused);
+  }, 3000);
   img.attr("alt", "").load(function() {
    clearTimeout(timeout);
    $(this).click(function() { show_large_artwork(); });
    $("#artwork .generic").hide();
    $("#artwork .artwork").replaceWith($(this).css("display", "inline"));
    if ($("#song_info").attr("data-song-loaded") != "true")
-    play_song_finish_loading();
+    play_song_finish_loading(time, paused);
   });
  } else
-  play_song_finish_loading();
+  play_song_finish_loading(time, paused);
 }
 
-function play_song_finish_loading() {
+function play_song_finish_loading(time, paused) {
+ if (!$.isNumeric(time)) time = 0;
+ if (typeof(paused) === "undefined") paused = false;
+ 
  var el = get_current_song_element();
  update_prev_next_buttons();
  player_load(el.attr("data-song-url"));
- player_play();
+ if (!paused) player_play(time);
+ else         player_pause(time);
  if (!scrubber_seek.enabled) scrubber_seek.enable();
  $("#song_length").text(time_text(song_length))
  $("#song_info").attr("data-song-loaded", "true");
- $("#song_info").attr("data-start-time", String(Math.round($.now() / 1000)));
+ $("#song_info").attr("data-start-time", String(Math.round($.now()/1000)));
 }
 
 function player_load(url) {
  $player.jPlayer("setMedia", {mp3: url});
 }
 
-function player_pause() {
- player.pause();
+function player_pause(time) {
+ if (!$.isNumeric(time)) time = undefined;
+ player.pause(time);
 }
 
-function player_play() {
- player.play();
+function player_play(time) {
+ if (!$.isNumeric(time)) time = undefined;
+ player.play(time);
 }
 
 function player_stop() {
@@ -640,9 +717,8 @@ function save_queue_to_cookie() {
    songs.push($(this).attr("data-id"));
   });
   
-  var expires = new Date($.now() + 1000*60*60*24*365*100).toUTCString();
-  document.cookie = ("queue=" + songs.join(":")
-   + "; path={{root_path}}/list/queue; expires=" + expires);
+  cookie_set("queue", songs.join(":"), distant_future(),
+             "{{root_path}}/list/queue");
  }, 1);
 }
 
@@ -674,8 +750,11 @@ function scrubber_volume_changed(e) {
 
 function seek_interval_callback() {
  // if buffer is not empty
- if (buffered_percent)
+ if (buffered_percent) {
   update_seek_bar(player.currentTime);
+  if (!player.paused)
+   cookie_set("time", player.currentTime, distant_future());
+ }
 }
 
 function set_icon_url(el, icon_url) {
@@ -690,6 +769,7 @@ function set_icon_url(el, icon_url) {
 
 function set_repeat(setting) {
  repeat = setting;
+ cookie_set("repeat", Number(repeat), distant_future());
  if (repeat) {
   $("#repeat .no_repeat").hide();
   $("#repeat .repeat").show();
@@ -704,6 +784,7 @@ function set_repeat(setting) {
 
 function set_scrobbling(setting) {
  scrobbling = setting;
+ cookie_set("scrobble", Number(scrobbling), distant_future());
  if (scrobbling) {
   $("#scrobbling .no_scrobbling").hide();
   $("#scrobbling .scrobbling").show();
@@ -715,6 +796,7 @@ function set_scrobbling(setting) {
 
 function set_shuffle(setting) {
  shuffle = setting;
+ cookie_set("shuffle", Number(shuffle), distant_future());
  if (shuffle) {
   set_repeat(true);
   $("#shuffle .no_shuffle").hide();
@@ -762,6 +844,8 @@ function stop_playing() {
  $("#artwork .generic").show();
  $("#song_info").attr("data-song-dom-id", "");
  document.title = DEFAULT_DOCUMENT_TITLE;
+ cookie_set("song", "", distant_future());
+ cookie_set("time", 0, distant_future());
 }
 
 function stop_song_only() {
@@ -788,8 +872,8 @@ function time_text(seconds) {
  return text;
 }
 
-function toggle_mute() {
- player.muted = !player.muted;
+function toggle_mute(state) {
+ player.muted = (typeof(state) === "undefined") ? !player.muted : state;
  $player.jPlayer("mute", player.muted);
 }
 
@@ -845,8 +929,10 @@ function update_seek_bar(position, duration) {
 }
 
 function update_volume_bar(coeff) {
- update_volume_icon();
+ update_volume_icon(player.muted);
  scrubber_volume.moveToPercent(coeff * 100);
+ cookie_set("volume", coeff, distant_future());
+ cookie_set("muted", Number(player.muted), distant_future());
 }
 
 function update_volume_icon(muted) {

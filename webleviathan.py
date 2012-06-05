@@ -59,6 +59,7 @@ config(root=__file__)
 
 config.name = "Leviathan Music Player"
 config.template.defaults = dict(
+ COOKIE_NAME_PREFIX=lambda: COOKIE_NAME_PREFIX,
  settings=lambda: settings(),
  url_scheme=lambda: url_scheme()
 )
@@ -67,6 +68,7 @@ artwork_cache_dir = os.path.join(config.root, "artwork-cache")
 generic_artwork_cache_dir = os.path.join(artwork_cache_dir, "generic")
 library_artwork_cache_dir = os.path.join(artwork_cache_dir, "library")
 
+COOKIE_NAME_PREFIX = "leviathan."
 DEFAULT_THEME      = "Radiance"
 FSENC              = leviathan.getfilesystemencoding()
 LAST_FM_API_KEY    = "564bfe2575a418e90e6977cfc71d7fbe"
@@ -210,6 +212,8 @@ def get_list(category, id=None, queue=None):
     queue = request.GET.get("queue", "")
     if ":" in queue: queue.replace(":", ",")
     queue = queue.split(",")
+   elif COOKIE_NAME_PREFIX + "queue" in cookies:
+    queue = cookies[COOKIE_NAME_PREFIX + "queue"].split(":")
    elif "queue" in cookies:
     queue = cookies["queue"].split(":")
    else:
