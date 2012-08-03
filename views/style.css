@@ -46,6 +46,13 @@ a, #library li .table .row span {
 a:hover, a:active {
  color: {{!theme["page_link"][1]}};
 }
+#library li .table .row span {
+ color: {{!theme["list_link"][0]}}; 
+}
+#library li .table .row span:hover,
+#library li .table .row span:active {
+ color: {{!theme["list_link"][1]}}; 
+}
 em, i {
  font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
               "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;

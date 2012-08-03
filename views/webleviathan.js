@@ -56,7 +56,7 @@ function add_link_clicked(event) {
 
 function add_to_queue(el, callback) {
  if (el === "server")
-  el = $('<div data-category="queue" class="emily"></div>');
+  el = $('<div data-category="queue" class="server"></div>');
  var category = el.attr("data-category");
  if (category == "album" || category == "playlist" || category == "songs"){
   queue_push_one(el);
@@ -708,8 +708,6 @@ function row_clicked(event) {
 }
 
 function save_queue_to_cookie() {
- // Emily owes me one of those :/
- 
  setTimeout(function() {
   var queue = get_queue_el();
   var songs = new Array();

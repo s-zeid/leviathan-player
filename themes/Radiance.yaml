@@ -29,7 +29,7 @@
 page_bg:            "#F2F1F0"
 page_text:          "#4C4C4C"
                     # page_link:  normal, hover/active
-page_link:          ["#A00", "#800"]
+page_link:          ["#DD4814", "#DD4814"]
 toolbar_bg:         "#DFD7CF"
 toolbar_text:       "#5D564F"
 toolbar_border:     "#D8CFC5"
@@ -54,7 +54,7 @@ list_item_hover:    ["#F2F1F0", "#EDE9E4"]
                     # list_item_selected:  background, border
 list_item_selected: ["#E8E3DC", "#E4DED7"]
                     # list_link:  normal, hover/active
-list_link:          ["#A00", "#800"]
+list_link:          ["#5D564F", "#5D564F"]
                     # clear_link:  normal, hover/active
 clear_link:         ["#A29D99", "#5D564F"]
                     # add_remove_style: light/dark
