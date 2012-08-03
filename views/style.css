@@ -169,7 +169,7 @@ img {
      #song_info .album, #song_info .artist {
       display: none;
      }
-     #song_info .not_playing, #song_info .name {
+     #song_info .not_playing, #song_info .album .name {
       font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
                    "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
       font-style: italic;
