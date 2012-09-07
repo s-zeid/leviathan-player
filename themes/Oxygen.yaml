@@ -46,7 +46,7 @@ list_border:        "#CAC6C4"
 list_header_bg:     "#D6D2D0"
 list_header_text:   "#1F1C1B"
                     # list_item_bg:  one per level; top level first
-list_item_bg:       ["#E4E3E2", "#E0DEDC", "#DBD8D5", "#D6D2D0"]
+list_item_bg:       ["#E4E2DF", "#E0DEDC", "#DBD8D5", "#D6D2D0"]
                     # list_item_border:  one per level; top level first
 list_item_border:   ["#E0DEDC", "#DBD8D5", "#D6D2D0", "#D0CCCA"]
                     # list_item_hover:  top level, deeper levels
