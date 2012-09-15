@@ -104,13 +104,14 @@ function cookie_delete(name) {
             "Thu, 01 Jan 1970 00:00:00 GMT", "{{root_path}}/");
 }
 
-function cookie_get(name) {
+function cookie_get(name, default_value) {
  name = COOKIE_NAME_PREFIX + name;
  var re = ("(?:" + name.replace(/([-\\^$*+?.():=!|{}\[\]])/g, "\\$&")
            + "=)(.*?)(?:;.*)?$");
  var match = document.cookie.match(new RegExp(re));
  if (match != null && match.length > 1)
   return unescape(match[1]);
+ return default_value;
 }
 
 function cookie_set(name, value, expires, path, domain, secure, httpOnly) {
@@ -351,9 +352,9 @@ function init_ui() {
  });
  $("#songs .table .row .add").unbind("click").click(add_link_clicked);
  reset_seek_bar();
- set_repeat(Number(cookie_get("repeat")) || {{"true" if settings["defaults"]["repeat"] else "false"}});
- set_scrobbling(Number(cookie_get("scrobble")) || {{"true" if settings["defaults"]["scrobbling"] else "false"}});
- set_shuffle(Number(cookie_get("shuffle")) || {{"true" if settings["defaults"]["shuffle"] else "false"}});
+ set_repeat(Number(cookie_get("repeat", {{"true" if settings["defaults"]["repeat"] else "false"}})));
+ set_scrobbling(Number(cookie_get("scrobble", {{"true" if settings["defaults"]["scrobbling"] else "false"}})));
+ set_shuffle(Number(cookie_get("shuffle", {{"true" if settings["defaults"]["shuffle"] else "false"}})));
  $(document).keypress(key_pressed);
  init_player(function() {
   setInterval(function() {
@@ -377,7 +378,7 @@ function init_ui() {
    if ($.isNumeric(song_id)) {
     var song = get_queue_el().children("[data-id='" + song_id + "']");
     if (song.length) {
-     play_song(song.first(), Number(cookie_get("time")), true);
+     play_song(song.first(), Number(cookie_get("time", 0)), true);
     }
    } 
   });
