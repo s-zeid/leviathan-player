@@ -54,8 +54,8 @@ a:hover, a:active {
  color: {{!theme["list_link"][1]}}; 
 }
 em, i {
- font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
-              "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
+ font-family: "Ubuntu", "Droid Sans", "Trebuchet MS", "DejaVu Sans",
+              "Bitstream Vera Sans", "Verdana", sans-serif;
  font-style: italic;
 }
 h1, .h1, #title {
@@ -170,8 +170,8 @@ img {
       display: none;
      }
      #song_info .not_playing, #song_info .album .name {
-      font-family: "Ubuntu Light", "Ubuntu", "Droid Sans", "Trebuchet MS",
-                   "DejaVu Sans", "Bitstream Vera Sans", "Verdana", sans-serif;
+      font-family: "Ubuntu", "Droid Sans", "Trebuchet MS", "DejaVu Sans",
+                   "Bitstream Vera Sans", "Verdana", sans-serif;
       font-style: italic;
      }
     #control_bar {
