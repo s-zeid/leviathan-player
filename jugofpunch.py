@@ -3,8 +3,8 @@
 # Jug of Punch
 # Extensions to the Bottle framework.
 # 
-# Copyright (C) 2010-2011 Scott Zeid
-# http://me.srwz.us/jug-of-punch
+# Copyright (C) 2010-2012 Scott Zeid
+# http://code.srwz.us/jug-of-punch
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -241,8 +241,8 @@ The dictionary is populated in the following order:
  tplvars["root_url"] = root_url()
  tplvars["site_name"] = site_name
  tplvars["title_format"] = config.template.title_format
- tplvars["ua"] = request.header.get("User-Agent", "")
- tplvars["wii"] = "wii" in request.header.get("User-Agent", "").lower() or "forcewii" in request.GET
+ tplvars["ua"] = request.headers.get("User-Agent", "")
+ tplvars["wii"] = "wii" in request.headers.get("User-Agent", "").lower() or "forcewii" in request.GET
  if "no_entities" not in tplvars or tplvars["no_entities"] != True:
   tplvars["no_entities"] = False
   tplvars = htmlentities(tplvars)
@@ -270,6 +270,11 @@ cannot be found."""
  try:
   # Bottle 0.9
   match = app().match(request.environ)
+  try:
+   # Bottle 0.10+
+   match = (match[0].callback,)
+  except AttributeError:
+   pass
  except HTTPError:
   return "error"
  except AttributeError:
@@ -388,7 +393,7 @@ on the user agent string."""
   return cgi.escape(device, True)
  else:
   return mobile
-is_mobile = functools.partial(is_mobile, lambda: request.header, lambda: request.GET)
+is_mobile = functools.partial(is_mobile, lambda: request.headers, lambda: request.GET)
 
 @route("/layout/:filename#[a-zA-Z0-9\-_\.\/]+#")
 def layout(filename):
