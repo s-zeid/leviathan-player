@@ -26,7 +26,7 @@
 # shall not be used in advertising or otherwise to promote the sale, use or
 # other dealings in this Software without prior written authorization.
 
-page_bg:            "#D6D2D0"
+page_bg:            "#F8F7F6"
 page_text:          "#1F1C1B"
                     # page_link:  normal, hover/active
 page_link:          ["#0057AE", "#00316E"]
