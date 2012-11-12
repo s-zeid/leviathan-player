@@ -60,7 +60,9 @@ config(root=__file__)
 config.name = "Leviathan Music Player"
 config.template.defaults = dict(
  COOKIE_NAME_PREFIX=lambda: COOKIE_NAME_PREFIX,
+ default_theme=lambda: get_default_theme(),
  settings=lambda: settings(),
+ themes=lambda: list_themes(),
  url_scheme=lambda: url_scheme()
 )
 
@@ -196,6 +198,15 @@ def get_artist_art_relpath(relpath, side_length=0):
     break
  return image_path
 
+def get_default_theme():
+ themes = list_themes()
+ default_theme = request.GET.get("theme", None)
+ if default_theme not in themes:
+  default_theme = settings().get("theme", DEFAULT_THEME)
+  if default_theme not in themes:
+   default_theme = DEFAULT_THEME
+ return default_theme
+
 def get_dom_id(category, id, parent=None):
  quoted_id = quote(to_unicode(id).encode("utf8"), "")
  dom_id = (parent+"_" if parent else "")+"%s_entry_%s" % (category,quoted_id)
@@ -247,14 +258,7 @@ def get_list(category, id=None, queue=None):
 @route("/")
 @view("index")
 def index():
- themes = list_themes()
- default_theme = request.GET.get("theme", None)
- if default_theme not in themes:
-  default_theme = settings().get("theme", DEFAULT_THEME)
-  if default_theme not in themes:
-   default_theme = DEFAULT_THEME
- themes.sort()
- return dict(default_theme=default_theme, themes=themes)
+ return dict()
 
 def last_fm_login():
  cfg = settings()["last.fm"];
@@ -344,8 +348,10 @@ def list_category_xspf(category):
  return list_category(category, "xspf")
 
 def list_themes():
- return [re.sub(r"\.ya?ml$", "", i, re.I) for i in os.listdir("themes")
-         if re.match(r"^[^._].*\.ya?ml$", i, re.I)] 
+ themes = [re.sub(r"\.ya?ml$", "", i, re.I) for i in os.listdir("themes")
+          if re.match(r"^[^._].*\.ya?ml$", i, re.I)]
+ themes.sort()
+ return themes
 
 @route("/scrobble/:id")
 def scrobble(id):
