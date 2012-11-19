@@ -43,6 +43,7 @@ import sys
 import traceback
 import types
 import UserDict
+import unicodedata
 
 import mutagen
 import yaml
@@ -278,6 +279,7 @@ class Playlist(UserDict.DictMixin, object):
  
  @classmethod
  def _add(cls, conn, c, library, name, quick=False, return_id=False):
+  name = to_unicode(name)
   relpath = to_unicode(name + library.playlist_formats.default.ext)
   library.check_path(relpath, library.playlists_path)
   path = library.abspath(relpath, library.playlists_path)
@@ -468,6 +470,7 @@ class Playlists(object):
   if isinstance(pls, Playlist):
    pls = pls.name
   if isinstance(pls, basestring):
+   pls = to_unicode(pls)
    r = self.library.query(Playlist.queries["id_from_name"], name=pls)
   elif isinstance(pls, (int, long)):
    r = self.library.query(Playlist.queries["id_from_id"], id=pls)
@@ -1778,9 +1781,10 @@ def sort_value(s):
 # replace Latin letters with diacritical marks with the same letters without
 # diacritics, preserving case
 def strip_latin_diacritics(string):
- ret = string
+ ret = unicodedata.normalize("NFKC", string)
  latin_diacritics = {
   "A": u"ÁÀĂẮẰẴẲÂẤẦẪẨǍÅǺÄǞÃȦǠĄĀẢȀȂẠẶẬḀȺǼǢ",
+  "Ae": u"Æ",
   "B": u"ḂḄḆɃƁƂ",
   "C": u"ĆĈČĊÇḈȻƇ",
   "D": u"ĎḊḐḌḒḎĐƉƊƋ",
@@ -1795,6 +1799,7 @@ def strip_latin_diacritics(string):
   "M": u"ḾṀṂ",
   "N": u"ŃǸŇÑṄŅṆṊṈƝȠN",
   "O": u"ÓÒŎÔỐỒỖỔǑÖȪŐÕṌṎȬȮȰØǾǪǬŌṒṐỎȌȎƠỚỜỠỞỢỌỘƟꝊꝌ",
+  "Oe": u"Œ",
   "P": u"ṔṖⱣꝐƤꝒꝔP",
   "Q": u"ꝘɊ",
   "R": u"ŔŘṘŖȐȒṚṜṞɌꞂⱤ",
@@ -1808,6 +1813,7 @@ def strip_latin_diacritics(string):
   "Y": u"ÝỲŶY̊ŸỸẎȲỶỴʏɎƳ",
   "Z": u"ŹẐŽŻẒẔƵȤⱫǮꝢ",
   "a": u"áàăắằẵẳâấầẫẩǎåǻäǟãȧǡąāảȁȃạặậḁⱥᶏǽǣᶐ",
+  "ae": u"æ",
   "b": u"ḃḅḇƀᵬᶀɓƃ",
   "c": u"ćĉčċçḉȼƈɕ",
   "d": u"ďḋḑḍḓḏđᵭᶁɖɗᶑƌȡ",
@@ -1822,6 +1828,7 @@ def strip_latin_diacritics(string):
   "m": u"ḿṁṃᵯᶆɱ",
   "n": u"ńǹňñṅņṇṋṉᵰɲƞᶇɳȵn̈",
   "o": u"óòŏôốồỗổǒöȫőõṍṏȭȯȱøǿǫǭōṓṑỏȍȏơớờỡởợọộɵꝋꝍ",
+  "oe": u"œ",
   "p": u"ṕṗᵽꝑᶈƥꝓꝕp̃",
   "q": u"ʠꝙɋ",
   "r": u"ŕřṙŗȑȓṛṝṟɍᵲᶉɼꞃɽɾᵳ",
