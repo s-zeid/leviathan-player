@@ -4,8 +4,8 @@
 # Leviathan Music Manager
 # A command-line utility to manage your music collection.
 # 
-# Copyright (C) 2010-2011 Scott Zeid
-# http://me.srwz.us/leviathan
+# Copyright (C) 2010-2013 Scott Zeid
+# http://code.s.zeid.me/leviathan
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -761,9 +761,10 @@ class Song(UserDict.DictMixin, object):
      raise
     if search and not library.check_path(search, library.music_path, False):
      raise ValueError("The song file must be within the library root.")
-    info = [None] + library._get_song_info(search)
+    info = library._get_song_info(search)
     if not info:
-     raise ValueError("'%s' is not a valid music file", search)
+     raise ValueError("'%s' is not a valid music file" % search)
+    info = [None] + info
   self.library = library
   self.__data = {
    "relpath": to_unicode(info[1]),
@@ -986,6 +987,15 @@ unless you know what you're doing.
   # Makes a list of Song objects from a SQL query result (output of
   # sqlite3.Cursor.fetchall)
   return [Song(self.library, *i) for i in result]
+ 
+ def _update_relpath(self, old_relpath, new_relpath):
+  # This is used by Library.move as the callback for our utility function
+  # mvdir.  It is called for all files moved, even non-songs.
+  try:
+   song = self[old_relpath]
+  except ValueError:
+   return
+  song.relpath = new_relpath
  
  def add(self, relpath, quick=False, return_id=False):
   conn, c = self.library._setup_db()
@@ -1310,7 +1320,7 @@ CREATE INDEX "playlist_entries_playlist" ON "playlist_entries" ("playlist");
    if not os.path.isdir(os.path.realpath(dst)):
     raise ValueError("If src is a directory, dst must also be a directory or a"
                      " symlink to one")
-   mvdir(src, dst, callback=self.update_song_path)
+   mvdir(src, dst, callback=self.songs._update_relpath)
   else:
    if os.path.isdir(os.path.realpath(dst)):
     dst = os.path.join(dst, os.path.basename(src))
