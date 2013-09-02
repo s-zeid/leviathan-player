@@ -29,11 +29,14 @@
  *
  */
 
+var ALBUM_ART_FAVICON = true;
 var COOKIE_NAME_PREFIX = "{{COOKIE_NAME_PREFIX}}";
 var DEFAULT_DOCUMENT_TITLE;
+var ORIGINAL_FAVICON_URL;
 var PREVIOUS_NO_REPLAY_THRESHOLD = 3;
 
 var buffered_percent = 0;
+var current_favicon_url;
 var $player = null;
 var play_history = [];
 var player = null;
@@ -320,6 +323,7 @@ function init_player(callback) {
 
 function init_ui() {
  DEFAULT_DOCUMENT_TITLE = document.title;
+ ORIGINAL_FAVICON_URL = $("head link[rel~='shortcut'][rel~='icon']").attr("href");
  scrubber_seek = new DerpScrubber({
   width: "100%", height: "24px", barSize: "6px",
   handle: $("<span></span>").addClass("scrubber-handle")
@@ -518,6 +522,10 @@ function play_song(el, time, paused) {
   $("#play_pause .no_play").hide();
   $("#play_pause .pause").hide();
   $("#play_pause .play").show();
+ }
+ if (ALBUM_ART_FAVICON) {
+  var favicon_url = el.attr("data-song-art-directory") + "/album.png?size=16";
+  set_favicon(favicon_url);
  }
  var art_url = el.attr("data-song-art-directory") + "/album.png?size=92";
  if ($("#artwork .artwork").attr("src") != art_url) {
@@ -756,6 +764,38 @@ function seek_interval_callback() {
  }
 }
 
+function set_favicon(icon_url) {
+ var canvas = $("<canvas width='16' height='16'></canvas>")[0];
+ if (icon_url && canvas.getContext) {
+  var ctx = canvas.getContext("2d");
+  var img = new Image(); img.src = icon_url;
+  img.addEventListener("load", function() {
+   var size = 16;
+   var width = size, height = size, x = 0, y = 0;
+   if (img.width > img.height) {
+    height = size * (img.height/img.width);
+    y = Math.floor((size - height) / 2);
+   } else if (img.height > img.width) {
+    width = size * (img.width/img.height);
+    x = Math.floor((size - width) / 2);
+   }
+   ctx.drawImage(img, x, y, width, height);
+   set_favicon_raw(canvas.toDataURL("image/png"), "image/png");
+  }, false);
+ } else {
+  set_favicon_raw(icon_url);
+ }
+}
+
+function set_favicon_raw(icon_url, type) {
+ if (typeof(icon_url) === "undefined") icon_url = ORIGINAL_FAVICON_URL;
+ if (typeof(type) === "undefined") type = "image/x-icon";
+ current_favicon_url = icon_url;
+ $("head link[rel~='shortcut'][rel~='icon']").remove();
+ $("<link rel='shortcut icon' />").attr("type", type).attr("href", icon_url)
+ .appendTo("head");
+}
+
 function set_icon_url(el, icon_url) {
  try {
   if (icon_url == "")
@@ -843,6 +883,7 @@ function stop_playing() {
  $("#artwork .generic").show();
  $("#song_info").attr("data-song-dom-id", "");
  document.title = DEFAULT_DOCUMENT_TITLE;
+ set_favicon();
  cookie_set("song", "", distant_future());
  cookie_set("time", 0, distant_future());
 }
