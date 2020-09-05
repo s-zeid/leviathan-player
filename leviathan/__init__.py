@@ -1,8 +1,30 @@
 # Leviathan Music Manager
 # A command-line utility to manage your music collection.
 # 
-# Copyright (C) 2010-2011 Scott Zeid
-# http://me.srwz.us/leviathan
+# Copyright (C) 2010-2011, 2020 S. Zeid
+# https://code.s.zeid.me/leviathan
+# 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# 
+# 
+# EXCEPTION:  Any version of this program, modified or otherwise, or any portion
+# or modified portion of this program, which does not use or import the Mutagen
+# audio tagging library may (at your option) be used under the following X11
+# License instead of the GNU General Public License (this condition is also
+# satisfied when this program is imported and used as a library without calling
+# its `enable_gpl()` function):
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +48,9 @@
 # shall not be used in advertising or otherwise to promote the sale, use or
 # other dealings in this Software without prior written authorization.
 
-__author__  = "Scott Zeid <s@srwz.us>"
+
+__author__  = "S. Zeid <s@zeid.me>"
 __version__ = "0.1"
+
 
 from leviathan import *

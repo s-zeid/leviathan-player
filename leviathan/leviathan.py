@@ -1,11 +1,33 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 # Leviathan Music Manager
 # A command-line utility to manage your music collection.
 # 
-# Copyright (C) 2010-2013 Scott Zeid
-# http://code.s.zeid.me/leviathan
+# Copyright (C) 2010-2013, 2020 S. Zeid
+# https://code.s.zeid.me/leviathan
+# 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# 
+# 
+# EXCEPTION:  Any version of this program, modified or otherwise, or any portion
+# or modified portion of this program, which does not use or import the Mutagen
+# audio tagging library may (at your option) be used under the following X11
+# License instead of the GNU General Public License (this condition is also
+# satisfied when this program is imported and used as a library without calling
+# its `enable_gpl()` function):
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +51,7 @@
 # shall not be used in advertising or otherwise to promote the sale, use or
 # other dealings in this Software without prior written authorization.
 
+
 import codecs
 import collections
 import ConfigParser as configparser
@@ -45,10 +68,18 @@ import types
 import UserDict
 import unicodedata
 
-import mutagen
 import yaml
 
-from mutagen.easyid3 import EasyID3
+def enable_gpl():
+ """Enable the use of functions that depend on Mutagen.
+
+Mutagen will not be imported unless this function was called first.
+
+"""
+ global _GPL
+ _GPL = True
+
+_GPL = False
 
 Format = collections.namedtuple("Format", ["ffmpeg_codec"])
 
@@ -65,6 +96,7 @@ EXTENSIONS = dict(
  m4a  = Format("libfaac"),
  mp3  = Format("libmp3lame"),
  ogg  = Format("libvorbis"),
+ opus = Format("libopus"),
  wav  = Format("pcm_s16le"),
  wma  = Format("wmav2")
 )
@@ -1175,6 +1207,11 @@ class Library(object):
   self.playlists = Playlists(self)
  
  def _get_song_info(self, relpath):
+  if _GPL:
+   import mutagen
+  else:
+   raise ImportError("adding or updating songs requires a GPL-licensed library,"
+                     " and `leviathan.enable_gpl()` has not been called")
   title, ext = os.path.splitext(os.path.basename(relpath))
   title = [title]
   artist = album = [""]
@@ -1440,6 +1477,11 @@ class PlaylistFormatSettings(dict):
   self._default = path
 
 def apic_extract(mp3, jpg=None):
+ if _GPL:
+  import mutagen
+ else:
+  raise ImportError("extracting cover art requires a GPL-licensed library,"
+                    " and `leviathan.enable_gpl()` has not been called")
  try:
   tags = mutagen.mp3.Open(mp3)
  except:
@@ -1460,6 +1502,13 @@ def apic_extract(mp3, jpg=None):
 
 def convert_to_mp3(in_file, out_file, ffmpeg_path, lame_path,
                    constant_bitrate=None, vbr_quality=None):
+ if _GPL:
+  import mutagen
+  from mutagen.easyid3 import EasyID3
+ else:
+  raise ImportError("preserving metadata when converting songs to MP3 requires"
+                    " a GPL-licensed library, and `leviathan.enable_gpl()` has"
+                    " not been called")
  ffmpeg_cmd = [ffmpeg_path, "-i", in_file, "-vn", "-acodec", "pcm_s16le",
                "-f", "wav", "-"]
  lame_cmd   = [lame_path, "-m", "s", "--noreplaygain"]
@@ -1567,7 +1616,7 @@ help|-h|--help
    print "Please specify a configuration file or omit --config-file."
    return 2
  else:
-  conf_file = os.path.expanduser("~/.leviathan.yaml")
+  conf_file = get_default_config_path()
  
  cmd = argv[1]
  
@@ -1864,9 +1913,17 @@ def strip_latin_diacritics(source):
    ret = ret.replace(variant, letter)
  return ret
 
+def get_default_config_path():
+ conf_file = os.path.expanduser("~/.leviathan.yml")
+ if not os.path.exists(conf_file):
+  conf_file_yaml = os.path.expanduser("~/.leviathan.yaml")
+  if os.path.exists(conf_file_yaml):
+   conf_file = conf_file_yaml
+ return conf_file
+
 def test(conf_file=None):
  if not conf_file:
-  conf_file = os.path.expanduser("~/.leviathan.yaml")
+  conf_file = get_default_config_path()
  library = Library(conf_file)
  return library
 
@@ -1882,6 +1939,7 @@ def yes_no_prompt(prompt="Are you sure?"):
  return True if r == "yes" else False
 
 if __name__ == "__main__":
+ enable_gpl()
  try:
   sys.exit(main(sys.argv))
  except KeyboardInterrupt:

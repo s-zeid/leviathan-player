@@ -3,8 +3,8 @@ Leviathan Music Player
 
 A free software, minimalist, Web-based music player.
 
-Copyright (C) 2010-2012 Scott Zeid  
-http://leviathan.srwz.us/
+Copyright (C) 2010-2012 S. Zeid  
+http://code.s.zeid.me/leviathan-player
 
 Leviathan Music Player is a Web-based music player.  It uses the Leviathan
 music library manager to find your songs and playlists.  Both the music player
@@ -23,7 +23,7 @@ Requirements
 ### On the server ###
 
  * Python 2.6 or 2.7
- * Mutagen
+ * Mutagen (only for managing the music library; not needed for the Web app)
  * Python Imaging Library
  * PyYAML
  * Bottle

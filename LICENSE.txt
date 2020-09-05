@@ -1,8 +1,8 @@
 Leviathan Music Player
 A free software, minimalist, Web-based music player.
 
-Copyright (C) 2010-2012 Scott Zeid
-http://me.srwz.us/leviathan/web
+Copyright (C) 2010-2012 S. Zeid
+https://code.s.zeid.me/leviathan-player
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,13 @@ other dealings in this Software without prior written authorization.
 The icon is licensed under the terms of the GNU Lesser General Public License.
 
 This program contains the following libraries or portions of them:
+
+ * Leviathan Music Manager (https://code.s.zeid.me/leviathan)
+    See `leviathan/LICENSE.txt`.
+    
+    Note:  Leviathan Music Player does not need to be licensed under the GPL
+    because no GPL-dependent code in Leviathan Music Manager is enabled, and
+    the music manager's license allows for this.
 
  * IE9.js (http://code.google.com/p/ie7-js/)
     IE7/IE8/IE9.js - copyright 2004-2010, Dean Edwards

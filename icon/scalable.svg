@@ -21,6 +21,8 @@
     <rdf:RDF>
       <cc:Work
          rdf:about="">
+        <dc:contributor>Modified by S. Zeid in 2010 or 2011 from the original GNOME Orca icon by Stephen Brandt.</dc:contributor>
+        <dc:rights>GNU Lesser General Public License, version 2.1, per [https://gitlab.gnome.org/GNOME/orca/-/blob/f538dc1dcb2b2fa3a925c7eee15a4143272aeaf3/icons/AUTHORS].</dc:rights>
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />

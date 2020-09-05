@@ -1,0 +1,18 @@
+The WebLeviathan icon is based on the GNOME Orca icon by Stephen Brandt.
+
+From <https://gitlab.gnome.org/GNOME/orca/-/blob/f538dc1dcb2b2fa3a925c7eee15a4143272aeaf3/icons/AUTHORS>:
+
+```
+Orca icon created by Stephen Brandt.
+stephen@stephenbrandt.com
+http://www.stephenbrandt.com/
+
+This artwork is available under the terms of the GNU Lesser General Public License.
+http://www.gnu.org/licenses/lgpl.html
+
+This icon follows the Tango visual guidelines.
+http://tango-project.org/
+```
+
+The WebLeviathan icon is licensed under the terms of the GNU Lesser General
+Public License, version 2.1.
